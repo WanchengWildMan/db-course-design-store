@@ -146,50 +146,6 @@ export class MenuService {
       });
     });
   }
-  //保存指定角色的授权菜单
-  saveEmployeePermission(req, res, next) {
-    pool.getConnection((err, connection) => {
-      const param = req.body;
-      const values = [];
-      const len = param.menus.length;
-      for (let i = 0; i < len; i++) {
-        values.push([param.roleId, param.menus[i].menuId]);
-      }
-      connection.query($sql.saveEmployeePermission, [values], (err, result) => {
-        if (result) {
-          result = {
-            code: true,
-            msg: '设置角色权限菜单成功',
-          };
-        }
-        $util.closeConnection(res, result, connection);
-      });
-    });
-  }
-  //删除指定角色授权
-  deleteEmployeePermission(req, res, next) {
-    pool.getConnection((err, connection) => {
-      const param = req.query;
-      const values = [];
-      const len = param.menus.length;
-      for (let i = 0; i < len; i++) {
-        values.push(param.menus[i].role_menu_id);
-      }
-      connection.query(
-        $sql.deleteEmployeePermission,
-        [values],
-        (err, result) => {
-          if (result) {
-            result = {
-              code: true,
-              msg: '取消授权角色权限菜单成功',
-            };
-          }
-          $util.closeConnection(res, result, connection);
-        },
-      );
-    });
-  }
   //分配好菜单属别
   matchMenuTree(menus) {
     //反序

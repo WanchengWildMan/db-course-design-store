@@ -3,7 +3,7 @@
  */
 
 export const purchaseMapSql = {
-  //保存进货单中的商品信息
+  //保存进货单中的商品信息！！！
   savePurchaseOfCommodity : 'insert into purchase_info(infoId, serialId, commodityId, commodityNumber) values ?',
   //保存进货单的额外信息
   savePurchaseOfOther : 'insert into purchase_list(serialId, serialDate, totalMoney, reviewId,  serialDesc) values(?, ?, ?, ?, ?)',
@@ -40,7 +40,7 @@ export const purchaseMapSql = {
   findAllPurchaseCountByAdmin : 'SELECT count(pi.infoId) AS count FROM 	purchase_list pl, purchase_info pi, review r WHERE	r.reviewId = pl.reviewId AND pl.serialId = pi.serialId',
 
   //审核通过后更新库存表的信息
-  updatePurchaseToStore : 'update store set FactStoreNum=FactStoreNum+? where commodityId=?',
+  updatePurchaseToStore : 'update store set factStoreNum=factStoreNum+? where commodityId=?',
   //更新指定进货单的审核表
   updatePurchaseToReview  : 'update review set reviewPersonId=?, reviewTime=?, Status=2 where reviewId=?',
 
@@ -48,11 +48,11 @@ export const purchaseMapSql = {
   /**
    * 删除进货单
    */
-  //删除指定进货单对应的商品信息
+  //删除指定进货单对应的商品信息！！！
   deletePurchaseOfCommodity : 'delete from purchase_info where serialId=?',
-  //删除指定盘点单其他信息
+  //删除指定盘点单其他信息！！！
   deletePurchaseOfOther : 'delete from purchase_list where serialId=?',
-  //删除盘点单据审核信息
+  //删除盘点单据审核信息！！！
   deletePurchaseByReview : 'delete from review where reviewId=?',
 };
 

@@ -15,8 +15,8 @@ export class CommodityService {
   //添加商品类型
   saveSort(req, res, next) {
     this.pool.getConnection((err, connection) => {
-      const reqCommodity = req.body;
-      connection.query($sql.saveSort, [reqCommodity.name], (err, result) => {
+      const reqCom = req.body;
+      connection.query($sql.saveSort, [reqCom.name], (err, result) => {
         if (result) {
           result = {
             code: true,
@@ -27,11 +27,11 @@ export class CommodityService {
       });
     });
   }
-  //保存一条新的商品
+  //保存一条新的商品单位
   saveUnit(req, res, next) {
     this.pool.getConnection((err, connection) => {
-      const reqCommodity = req.body;
-      connection.query($sql.saveUnit, [reqCommodity.name], (err, result) => {
+      const reqCom = req.body;
+      connection.query($sql.saveUnit, [reqCom.name], (err, result) => {
         if (result) {
           result = {
             code: true,
@@ -42,9 +42,10 @@ export class CommodityService {
       });
     });
   }
-  //保存商品信息
+
+  //添加商品信息
   saveCommodity(req, res, next) {
-    const reqCommodity = req.body;
+    const reqCom = req.body;
     const commodityId = $util.uuid(8, 10);
     this.pool.getConnection((err, connection) => {
       connection.beginTransaction((err) => {
@@ -57,19 +58,20 @@ export class CommodityService {
             $sql.saveCommodity,
             [
               commodityId,
-              reqCommodity.categoryId,
+              reqCom.categoryId,
               $util.uuid(12, 10),
-              reqCommodity.name,
-              reqCommodity.format,
-              reqCommodity.unitId,
-              reqCommodity.retailPrice,
-              reqCommodity.costPrice,
-              reqCommodity.quantityUpperLimit,
-              reqCommodity.quantityLowerLimit,
+              reqCom.name,
+              reqCom.format,
+              reqCom.place,
+              reqCom.unitId,
+              reqCom.discountRate,
+              reqCom.costPrice,
+              reqCom.quantityUpperLimit,
+              reqCom.quantityLowerLimit,
               new Date(),
-              reqCommodity.provideId,
-              reqCommodity.Status,
-              reqCommodity.remark,
+              reqCom.provideId,
+              reqCom.Status,
+              reqCom.remark,
             ],
             (err, result) => {
               if (err) {
@@ -125,14 +127,14 @@ export class CommodityService {
   findSortByPage(req, res, next) {
     this.pool.getConnection((err, connection) => {
       if (err) return;
-      const pageModel = JSON.parse(req.query.pageModel);
+      const pageInfo = JSON.parse(req.query.pageInfo);
       connection.beginTransaction((err) => {
         const getList = (callback) => {
           connection.query(
             $util.commonMergerSql(
               $sql.findSortByPage,
               JSON.stringify({}),
-              pageModel,
+              pageInfo,
               true,
             ),
             (err, result) => {
@@ -179,14 +181,14 @@ export class CommodityService {
   findUnitByPage(req, res, next) {
     this.pool.getConnection((err, connection) => {
       if (err) return;
-      const pageModel = JSON.parse(req.query.pageModel);
+      const pageInfo = JSON.parse(req.query.pageInfo);
       connection.beginTransaction((err) => {
         const getList = (callback) => {
           connection.query(
             $util.commonMergerSql(
               $sql.findUnitByPage,
               JSON.stringify({}),
-              pageModel,
+              pageInfo,
               true,
             ),
             (err, result) => {
@@ -233,29 +235,29 @@ export class CommodityService {
   findCommodityByPage(req, res, next) {
     this.pool.getConnection((err, connection) => {
       if (err) return;
-      const pageModel = JSON.parse(req.query.pageModel);
-      const findModel = JSON.parse(req.query.findModel);
+      const pageInfo = JSON.parse(req.query.pageInfo);
+      const findInfo = JSON.parse(req.query.findInfo);
       connection.beginTransaction((err) => {
         let sql = '';
-        if (findModel.categoryId != '') {
-          sql += ` AND c.categoryId=${parseInt(findModel.categoryId)}`;
+        if (findInfo.categoryId != '') {
+          sql += ` AND c.categoryId=${parseInt(findInfo.categoryId)}`;
         }
-        if (findModel.quantityLimit !== 0) {
-          if (findModel.quantityLimit == 1) {
-            sql += ' AND s.FactStoreNum > c.quantityUpperLimit';
-          } else if (findModel.quantityLimit == -1) {
-            sql += ' AND s.FactStoreNum < c.quantityLowerLimit';
+        if (findInfo.quantityLimit !== 0) {
+          if (findInfo.quantityLimit == 1) {
+            sql += ' AND s.factStoreNum > c.quantityUpperLimit';
+          } else if (findInfo.quantityLimit == -1) {
+            sql += ' AND s.factStoreNum < c.quantityLowerLimit';
           }
         }
-        if (findModel.content != '') {
-          sql += ` AND concat(c.name, c.barcode,c.commodityId, g.name, u.name) like %${findModel.content}%`;
+        if (findInfo.content != '') {
+          sql += ` AND concat(c.name, c.barcode,c.commodityId, g.name, u.name) like %${findInfo.content}%`;
         }
         const getList = (callback) => {
           connection.query(
             $util.commonMergerSql(
               $sql.findCommodityByPage + sql,
               JSON.stringify({}),
-              pageModel,
+              pageInfo,
               true,
             ),
             (err, result) => {
@@ -290,22 +292,22 @@ export class CommodityService {
   getSelectCommodityList(req, res, next) {
     this.pool.getConnection((err, connection) => {
       if (err) return;
-      const pageModel = JSON.parse(req.query.pageModel);
-      const findModel = JSON.parse(req.query.propsModel);
+      const pageInfo = JSON.parse(req.query.pageInfo);
+      const findInfo = JSON.parse(req.query.propsModel);
       connection.beginTransaction((err) => {
         let sql = '';
-        if (findModel.categoryId !== '') {
-          sql += ` AND c.categoryId=${parseInt(findModel.categoryId)}`;
+        if (findInfo.categoryId !== '') {
+          sql += ` AND c.categoryId=${parseInt(findInfo.categoryId)}`;
         }
-        if (findModel.content !== '') {
-          sql += ` AND concat(c.name, c.barcode,c.commodityId, g.name, u.name) like %${findModel.content}%`;
+        if (findInfo.content !== '') {
+          sql += ` AND concat(c.name, c.barcode,c.commodityId, g.name, u.name) like %${findInfo.content}%`;
         }
         const getList = (callback) => {
           connection.query(
             $util.commonMergerSql(
               $sql.getSelectCommodityListByPage + sql,
               JSON.stringify({}),
-              pageModel,
+              pageInfo,
               true,
             ),
             (err, result) => {
@@ -320,7 +322,7 @@ export class CommodityService {
         const getCount = (callback) => {
           connection.query(
             $util.commonMergerCountSql(
-              $sql.findCommodityCount + sql + '  AND s.FactStoreNum !=0',
+              $sql.findCommodityCount + sql + '  AND s.factStoreNum !=0',
               JSON.stringify({}),
               true,
             ),
@@ -391,7 +393,7 @@ export class CommodityService {
           param.name,
           param.format,
           param.unitId,
-          param.retailPrice,
+          param.discountRate,
           param.costPrice,
           param.quantityUpperLimit,
           param.quantityLowerLimit,

@@ -58,14 +58,14 @@ export class RoleService {
   getAllRoleByPage(req, res, next) {
     this.pool.getConnection((err, connection) => {
       if (err) return;
-      let pageModel = JSON.parse(req.query.pageModel);
+      let pageInfo = JSON.parse(req.query.pageInfo);
       connection.beginTransaction((err) => {
         let getList = (callback) => {
           connection.query(
             $util.commonMergerSql(
               $sql.role.getAllRoleByPage,
               JSON.stringify({}),
-              pageModel,
+              pageInfo,
               true,
             ),
             (err, result) => {

@@ -19,18 +19,18 @@ export const inventoryMap = {
   //获取所有盘点单总数（管理员）
   findInventoryCountByAdmin : 'SELECT count(il.inventoryId) AS count FROM inventory_list il, review r WHERE il.reviewId = r.reviewId ',
   //获取指定页数的盘点单盘点商品信息
-  findAllInventoryCommodityByEmployeeAndPage : 'SELECT ii.*, il.remark, c.barcode, `name`, costPrice, retailPrice, format, r.reviewId, r.`Status`, r.systemTime, (SELECT e.`name` from employee e WHERE e.employeeId = r.systemId) AS systemName,( SELECT u. `name` FROM unit u WHERE u.unitId = c.unitId ) AS unitName, ( SELECT p. `name` FROM provide p WHERE p.provideId = c.provideId ) AS provideName FROM inventory_list il, inventory_info ii, commodity c, review r WHERE r.systemId =? AND r.reviewId = il.reviewId AND ii.commodityId = c.commodityId AND il.inventoryId = ii.inventoryId',
+  findAllInventoryCommodityByEmployeeAndPage : 'SELECT ii.*, il.remark, c.barcode, `name`, costPrice, discountRate, format, r.reviewId, r.`Status`, r.systemTime, (SELECT e.`name` from employee e WHERE e.employeeId = r.systemId) AS systemName,( SELECT u. `name` FROM unit u WHERE u.unitId = c.unitId ) AS unitName, ( SELECT p. `name` FROM provide p WHERE p.provideId = c.provideId ) AS provideName FROM inventory_list il, inventory_info ii, commodity c, review r WHERE r.systemId =? AND r.reviewId = il.reviewId AND ii.commodityId = c.commodityId AND il.inventoryId = ii.inventoryId',
   //获取盘点单总数（指定用户）
   findAllInventoryCommodityCountByEmployee :'SELECT count(ii.infoId) AS count FROM inventory_list il, inventory_info ii, review r WHERE r.reviewId = il.reviewId AND il.inventoryId = ii.inventoryId AND  r.systemId=?',
   //获取指定页数的盘点单盘点商品信息（管理员）
-  findAllInventoryCommodityByAdminAndPage : 'SELECT ii.*, il.remark, c.barcode, `name`, costPrice, retailPrice, format, r.reviewId, r.`Status`,  r.systemTime, (SELECT e.`name` from employee e WHERE e.employeeId = r.systemId) AS systemName,( SELECT u. `name` FROM unit u WHERE u.unitId = c.unitId ) AS unitName, ( SELECT p. `name` FROM provide p WHERE p.provideId = c.provideId ) AS provideName FROM inventory_list il, inventory_info ii, commodity c, review r WHERE  r.reviewId = il.reviewId AND ii.commodityId = c.commodityId AND il.inventoryId = ii.inventoryId',
+  findAllInventoryCommodityByAdminAndPage : 'SELECT ii.*, il.remark, c.barcode, `name`, costPrice, discountRate, format, r.reviewId, r.`Status`,  r.systemTime, (SELECT e.`name` from employee e WHERE e.employeeId = r.systemId) AS systemName,( SELECT u. `name` FROM unit u WHERE u.unitId = c.unitId ) AS unitName, ( SELECT p. `name` FROM provide p WHERE p.provideId = c.provideId ) AS provideName FROM inventory_list il, inventory_info ii, commodity c, review r WHERE  r.reviewId = il.reviewId AND ii.commodityId = c.commodityId AND il.inventoryId = ii.inventoryId',
   //获取盘点单总数（管理员）
   findAllInventoryCommodityCountByAdmin : 'SELECT count(ii.infoId) AS count FROM inventory_list il, inventory_info ii, review r WHERE r.reviewId = il.reviewId AND il.inventoryId = ii.inventoryId',
   /**
    * 查询一张指定的盘点单
    */
   //通过盘点单查询多个盘点商品信息
-  findCommodityByInventoryId : 'SELECT c.commodityId, c.barcode, c.`name`, format, costPrice, retailPrice, 	u.`name` AS unitName, ii.storeNum AS FactStoreNum , ii.inventoryNum AS num FROM inventory_info ii, commodity c, unit u WHERE ii.inventoryId =? AND ii.commodityId = c.commodityId AND c.unitId = u.unitId',
+  findCommodityByInventoryId : 'SELECT c.commodityId, c.barcode, c.`name`, format, costPrice, discountRate, 	u.`name` AS unitName, ii.storeNum AS factStoreNum , ii.inventoryNum AS num FROM inventory_info ii, commodity c, unit u WHERE ii.inventoryId =? AND ii.commodityId = c.commodityId AND c.unitId = u.unitId',
   //通过盘点单的审核号查询指定审核信息
   findInventoryReviewByReviewId: 'SELECT * , (SELECT e.name  from employee e where r.systemId = e.employeeId) as systemName, (SELECT e.name  from employee e where r.reviewPersonId = e.employeeId) as reviewPersonName  FROM review r WHERE r.reviewId=?',
   //查询盘点单的其他信息
@@ -41,7 +41,7 @@ export const inventoryMap = {
    * 盘点单审核
    */
   //更新盘点单对应的商品的信息的实际库存
-  updateInventoryToStore : 'update store set  FactStoreNum=FactStoreNum+? where commodityId=?',
+  updateInventoryToStore : 'update store set  factStoreNum=factStoreNum+? where commodityId=?',
   //更新指定盘点单的审核表信息
   updateInventoryToReview : 'update review set reviewPersonId=?, reviewTime=?, Status=2 where reviewId=?',
 

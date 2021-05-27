@@ -173,15 +173,15 @@ export class BillService {
     }
     this.pool.getConnection((err, connection: Connection) => {
       if (err) return;
-      let findModel = req.query.findModel;
-      let pageModel = JSON.parse(req.query.pageModel);
+      let findInfo = req.query.findInfo;
+      let pageInfo = JSON.parse(req.query.pageInfo);
       connection.beginTransaction((err) => {
         let getList = (callback) => {
           connection.query(
             $util.commonMergerSql(
               $sql.findBillByEmployeeAndPage,
-              findModel,
-              pageModel,
+              findInfo,
+              pageInfo,
               false,
             ),
             req.session.user.id,
@@ -196,7 +196,7 @@ export class BillService {
           connection.query(
             $util.commonMergerCountSql(
               $sql.findBillCountByEmployee,
-              findModel,
+              findInfo,
               true,
             ),
             req.session.user.id,
@@ -217,15 +217,15 @@ export class BillService {
       return;
     }
     this.pool.getConnection((err, connection: Connection) => {
-      let findModel = req.query.findModel;
-      let pageModel = JSON.parse(req.query.pageModel);
+      let findInfo = req.query.findInfo;
+      let pageInfo = JSON.parse(req.query.pageInfo);
       connection.beginTransaction((err) => {
         let getList = (callback) => {
           connection.query(
             $util.commonMergerSql(
               $sql.findBillByPage,
-              findModel,
-              pageModel,
+              findInfo,
+              pageInfo,
               true,
             ),
             req.session.user.id,
@@ -240,7 +240,7 @@ export class BillService {
           connection.query(
             $util.commonMergerCountSql(
               $sql.findBillCountByAdmin,
-              findModel,
+              findInfo,
               false,
             ),
             req.session.user.id,
@@ -277,8 +277,8 @@ export class BillService {
   }
   //获取指定员工指定页数的进货单商品
   findAllCommodityByEmployeeAndPage(req, res, next) {
-    let findModel = req.query.findModel;
-    let pageModel = JSON.parse(req.query.pageModel);
+    let findInfo = req.query.findInfo;
+    let pageInfo = JSON.parse(req.query.pageInfo);
     if (!req.session.user) {
       return;
     }
@@ -292,15 +292,15 @@ export class BillService {
           if (req.session.user.roleId === 5) {
             sql = $util.commonMergerSql(
               $sql.findAllCommodityByAdminAndPage,
-              findModel,
-              pageModel,
+              findInfo,
+              pageInfo,
               true,
             );
           } else {
             sql = $util.commonMergerSql(
               $sql.findBillCommodityCountByEmployee,
-              findModel,
-              pageModel,
+              findInfo,
+              pageInfo,
               false,
             );
             param.push(req.session.user.id);
@@ -319,13 +319,13 @@ export class BillService {
           if (req.session.user.roleId === 5) {
             countSql = $util.commonMergerCountSql(
               $sql.findBillCommodityCountByAdmin,
-              findModel,
+              findInfo,
               true,
             );
           } else {
             countSql = $util.commonMergerCountSql(
               $sql.findBillCommodityCountByEmployee,
-              findModel,
+              findInfo,
               true,
             );
             countParam.push(req.session.user.id);

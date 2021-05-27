@@ -126,15 +126,15 @@ export class InventoryService {
     }
     pool.getConnection((err, connection) => {
       if (err) return;
-      let findModel = req.query.findModel;
-      let pageModel = JSON.parse(req.query.pageModel);
+      let findInfo = req.query.findInfo;
+      let pageInfo = JSON.parse(req.query.pageInfo);
       connection.beginTransaction((err) => {
         let getList = (callback) => {
           connection.query(
             $util.commonMergerSql(
               $sql.findInventoryByEmployeeAndPage,
-              findModel,
-              pageModel,
+              findInfo,
+              pageInfo,
               false,
             ),
             req.session.user.id,
@@ -151,7 +151,7 @@ export class InventoryService {
           connection.query(
             $util.commonMergerCountSql(
               $sql.findInventoryCountByEmployee,
-              findModel,
+              findInfo,
               true,
             ),
             req.session.user.id,
@@ -187,15 +187,15 @@ export class InventoryService {
     }
     pool.getConnection((err, connection) => {
       if (err) return;
-      let findModel = req.query.findModel;
-      let pageModel = JSON.parse(req.query.pageModel);
+      let findInfo = req.query.findInfo;
+      let pageInfo = JSON.parse(req.query.pageInfo);
       connection.beginTransaction((err) => {
         let getList = (callback) => {
           connection.query(
             $util.commonMergerSql(
               $sql.findInventoryByPage,
-              findModel,
-              pageModel,
+              findInfo,
+              pageInfo,
               false,
             ),
             (err, result) => {
@@ -211,7 +211,7 @@ export class InventoryService {
           connection.query(
             $util.commonMergerCountSql(
               $sql.findInventoryCountByAdmin,
-              findModel,
+              findInfo,
               true,
             ),
             req.session.user.id,
@@ -244,8 +244,8 @@ export class InventoryService {
   findAllInventoryCommodityByEmployeeAndPage(req, res, next) {
     /* let sql = '';
     let param=[];*/
-    let findModel = req.query.findModel;
-    let pageModel = JSON.parse(req.query.pageModel);
+    let findInfo = req.query.findInfo;
+    let pageInfo = JSON.parse(req.query.pageInfo);
     if (!req.session.user) {
       return;
     }
@@ -263,7 +263,7 @@ export class InventoryService {
             param.push(req.session.user.id);
           }
           connection.query(
-            $util.commonMergerSql(sql, findModel, pageModel, false),
+            $util.commonMergerSql(sql, findInfo, pageInfo, false),
             param,
             (err, result) => {
               if (err) {
@@ -285,7 +285,7 @@ export class InventoryService {
             countParam.push(req.session.user.id);
           }
           connection.query(
-            $util.commonMergerCountSql(countSql, findModel, true),
+            $util.commonMergerCountSql(countSql, findInfo, true),
             countParam,
             (err, result) => {
               if (err) {

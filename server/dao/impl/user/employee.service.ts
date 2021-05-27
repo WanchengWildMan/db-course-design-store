@@ -5,17 +5,20 @@ import * as $cipher from '../../../util/cipher';
 
 import { $conf } from '../../../conf/db';
 import { userSqlMap as $sql } from '../../map/userMap';
+
 @Injectable()
 export class EmployeeService {
   private readonly pool: mysql.Pool;
+
   constructor() {
     this.pool = mysql.createPool($util.extend({}, $conf.mysql));
   }
+
   //员工登录
   login(req, res, next) {
     this.pool.getConnection((err, connection) => {
       const param = req.query;
-      
+
       connection.query(
         $sql.employee.login,
         [param.username, $cipher.encrypt(param.password)],
@@ -54,6 +57,7 @@ export class EmployeeService {
       );
     });
   }
+
   //保存一个员工信息
   saveEmployee(req, res, next) {
     this.pool.getConnection((err, connection) => {
@@ -85,6 +89,7 @@ export class EmployeeService {
       );
     });
   }
+
   //更新指定员工信息
   updateEmployeeById(req, res, next) {
     this.pool.getConnection((err, connection) => {
@@ -117,6 +122,7 @@ export class EmployeeService {
       );
     });
   }
+
   //更新员工使用状态
   updateEmployeeStatusById(req, res, next) {
     this.pool.getConnection((err, connection) => {
@@ -138,19 +144,22 @@ export class EmployeeService {
       );
     });
   }
+
   //获取指定页数的员工信息
   getEmployeeByPage(req, res, next) {
     this.pool.getConnection((err, connection) => {
       if (err) return;
-      let pageModel = JSON.parse(req.query.pageModel);
+      let pageInfo = JSON.parse(req.query.pageInfo);
       let propsModel = JSON.parse(req.query.propsModel);
       connection.beginTransaction((err) => {
         let sql = '';
         let queryParam = [];
         if (parseInt(propsModel.roleId) === 0) {
+          //0默认查询所有角色/部门
           if (propsModel.content === '') {
             sql = '';
           } else {
+            //模糊查询——所有字段连接后即可
             sql =
               'concat(e.employeeId, e.name, r.name, e.position, e.contactPhone, e.contactAddress, e.IdCard, e.sex, e.Status) like "%' +
               propsModel.content +
@@ -173,7 +182,7 @@ export class EmployeeService {
             $util.commonMergerSql(
               $sql.employee.getEmployeeByPage + sql,
               JSON.stringify({}),
-              pageModel,
+              pageInfo,
               true,
             ),
             (err, result) => {
@@ -237,6 +246,7 @@ export class EmployeeService {
         });
       });*/
   }
+
   //获取指定员工号的指定的员工信息
   getEmployeeById(req, res, next) {
     this.pool.getConnection((err, connection) => {
@@ -257,6 +267,7 @@ export class EmployeeService {
       );
     });
   }
+
   //删除指定id的员工信息
   deleteEmployeeById(req, res, next) {
     this.pool.getConnection((err, connection) => {

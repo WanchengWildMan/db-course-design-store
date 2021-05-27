@@ -27,18 +27,18 @@ export function jsonWrite(res, ret) {
 //断开连接
 export function closeConnection(res, result, connection) {
   //返回结果
-  this.jsonWrite(res, result);
+  jsonWrite(res, result);
 
   //释放连接
   connection.release();
 }
 //通用合并查询sql字符串
-export function traversalSql(sourceSql, childSql, pageModel, type) {
+export function traversalSql(sourceSql, childSql, pageInfo, type) {
   let pageSql =
     ' LIMIT ' +
-    (parseInt(pageModel.currentPage) - 1) * parseInt(pageModel.page) +
+    (parseInt(pageInfo.currentPage) - 1) * parseInt(pageInfo.page) +
     ',' +
-    parseInt(pageModel.page);
+    parseInt(pageInfo.page);
   if (childSql !== '') {
     if (type) {
       sourceSql += ' WHERE ';
@@ -92,17 +92,17 @@ export function traversalCountSql(sourceSql, childSql, type) {
 }
 
 //合并通用查询sql语句
-export function commonMergerSql(sourceSql, findModel, pageModel, type) {
+export function commonMergerSql(sourceSql, findInfo, pageInfo, type) {
   let sql = '';
-  let childSql = this.traversal(JSON.parse(findModel));
-  sql = this.traversalSql(sourceSql, childSql, pageModel, type);
+  let childSql = traversal(JSON.parse(findInfo));
+  sql = traversalSql(sourceSql, childSql, pageInfo, type);
   return sql;
 }
 //合并通用查询指定条件下的数据总数sql语句
-export function commonMergerCountSql(sourceSql, findModel, type) {
+export function commonMergerCountSql(sourceSql, findInfo, type) {
   let sql = '';
-  let childSql = this.traversal(JSON.parse(findModel));
-  sql = this.traversalCountSql(sourceSql, childSql, type);
+  let childSql = traversal(JSON.parse(findInfo));
+  sql = traversalCountSql(sourceSql, childSql, type);
   return sql;
 }
 
@@ -119,7 +119,7 @@ export function commonCommit(res, sqlArr, connection) {
     if (err) {
       //错误回滚
       connection.rollback(() => {
-        this.closeConnection(res, r(false, '获取数据失败'), connection);
+        closeConnection(res, r(false, '获取数据失败'), connection);
       });
       return;
     }
@@ -128,7 +128,7 @@ export function commonCommit(res, sqlArr, connection) {
       if (err) {
         return;
       }
-      this.closeConnection(res, r(true, '获取数据成功'), connection);
+      closeConnection(res, r(true, '获取数据成功'), connection);
     });
   });
 }

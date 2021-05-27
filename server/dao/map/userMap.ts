@@ -26,22 +26,21 @@ export const userSqlMap = {
     saveEmployee : 'insert into employee values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     //更新指定员工信息
     updateEmployeeById : 'update employee set name=?, roleId=?, position=?, contactPhone=?, contactAddress=?, IdCard=?, entryTime=?, sex=?, Status=? where employeeId=?',
-    //更新指定的员工的状态
+    //更新指定的员工的可用状态
     updateEmployeeStatusById : 'update employee set Status=? where employeeId=?',
-    /*//模糊查询不带部门
+    /*//模糊查询，不指定部门
     fuzzyQueryByPage : 'select e.*, r.name as roleName from employee e, role r where e.roleId = r.roleId AND e.Status != -2 AND concat(e.employeeId, e.name, r.name, e.position, e.contactPhone, e.contactAddress, e.IdCard, e.sex, e.Status) like "%"?"%"',
     //模糊查询带部门
     fuzzyQueryByPageAndRoleId : 'select e.*, r.name as roleName from employee e, role r where e.roleId = r.roleId AND e.Status != -2 AND e.roleId=? AND concat(e.employeeId, e.name, r.name, e.position, e.contactPhone, e.contactAddress, e.IdCard, e.sex, e.Status) like "%"?"%"',*/
-    //不指定部门查询
+    //查询员工所有信息与角色名，不指定部门
     getEmployeeByPage : 'select e.*, r.name as roleName from employee e, role r where e.roleId = r.roleId and e.Status != -2',
     //获取员工的总数
     findEmployeeCount : 'SELECT count(e.employeeId) as count FROM employee e, role r WHERE e.roleId = r.roleId AND  e.Status != -2 ',
-    // 通过员工号获取员工信息
+    // 通过员工号获取员工id和姓名
     getEmployeeById : 'select e.employeeId, e.name from employee e where employeeId=?',
     /*//获取指定页数的员工信息
     getEmployeeByPageAndRoleId : 'select e.*, r.name as roleName from employee e, role r where e.roleId = r.roleId and e.Status != -2 and  ',*/
-
-    //删除指定员工信息，暂时未用
+    //删除指定员工信息，TODO
     deleteEmployeeById : 'delete from employee where employeeId=?',
   },
   //供应商

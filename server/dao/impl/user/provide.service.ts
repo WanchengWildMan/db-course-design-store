@@ -69,18 +69,18 @@ export class ProvideSerivce {
   getProvideByPage(req, res, next) {
     this.pool.getConnection((err, connection) => {
       if (err) return;
-      let findModel = req.query.findModel;
-      let pageModel = JSON.parse(req.query.pageModel);
+      let findInfo = req.query.findInfo;
+      let pageInfo = JSON.parse(req.query.pageInfo);
       let sql = '';
       let judge =
-        parseInt(JSON.parse(findModel)['p.categoryId']) === 0 ? true : false;
+        parseInt(JSON.parse(findInfo)['p.categoryId']) === 0 ? true : false;
       if (judge) {
-        findModel = JSON.stringify({});
+        findInfo = JSON.stringify({});
       }
       sql = $util.commonMergerSql(
         $sql.provide.getProvideByPageAndCategoryId,
-        findModel,
-        pageModel,
+        findInfo,
+        pageInfo,
         false,
       );
       connection.beginTransaction((err) => {
@@ -98,7 +98,7 @@ export class ProvideSerivce {
           connection.query(
             $util.commonMergerCountSql(
               $sql.provide.findProvideCount,
-              findModel,
+              findInfo,
               false,
             ),
             (err, result) => {

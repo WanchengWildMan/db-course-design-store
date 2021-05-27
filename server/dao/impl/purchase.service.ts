@@ -128,15 +128,15 @@ export class PurchaseService {
     }
     this.pool.getConnection((err, connection: Connection) => {
       if (err) return;
-      const findModel = req.query.findModel;
-      const pageModel = JSON.parse(req.query.pageModel);
+      const findInfo = req.query.findInfo;
+      const pageInfo = JSON.parse(req.query.pageInfo);
       connection.beginTransaction((err) => {
         const getList = (callback) => {
           connection.query(
             $util.commonMergerSql(
               $sql.findPurchaseByEmployeeAndPage,
-              findModel,
-              pageModel,
+              findInfo,
+              pageInfo,
               false,
             ),
             req.session.user.id,
@@ -152,7 +152,7 @@ export class PurchaseService {
           connection.query(
             $util.commonMergerCountSql(
               $sql.findPurchaseCountByEmployee,
-              findModel,
+              findInfo,
               true,
             ),
             req.session.user.id,
@@ -175,15 +175,15 @@ export class PurchaseService {
     }
     this.pool.getConnection((err, connection: Connection) => {
       if (err) return;
-      const findModel = req.query.findModel;
-      const pageModel = JSON.parse(req.query.pageModel);
+      const findInfo = req.query.findInfo;
+      const pageInfo = JSON.parse(req.query.pageInfo);
       connection.beginTransaction((err) => {
         const getList = (callback) => {
           connection.query(
             $util.commonMergerSql(
               $sql.findPurchaseByPage,
-              findModel,
-              pageModel,
+              findInfo,
+              pageInfo,
               false,
             ),
             (err, result) => {
@@ -198,7 +198,7 @@ export class PurchaseService {
           connection.query(
             $util.commonMergerCountSql(
               $sql.findPurchaseCountByAdmin,
-              findModel,
+              findInfo,
               true,
             ),
             req.session.user.id,
@@ -316,8 +316,8 @@ export class PurchaseService {
   findAllPurchaseByEmployeeAndPage(req, res, next) {
     /*let sql = '';
                 let param=[];*/
-    const findModel = req.query.findModel;
-    const pageModel = JSON.parse(req.query.pageModel);
+    const findInfo = req.query.findInfo;
+    const pageInfo = JSON.parse(req.query.pageInfo);
     if (!req.session.user) {
       return;
     }
@@ -335,7 +335,7 @@ export class PurchaseService {
             param.push(req.session.user.id);
           }
           connection.query(
-            $util.commonMergerSql(sql, findModel, pageModel, false),
+            $util.commonMergerSql(sql, findInfo, pageInfo, false),
             param,
             (err, result) => {
               if (err) {
@@ -356,7 +356,7 @@ export class PurchaseService {
             countParam.push(req.session.user.id);
           }
           connection.query(
-            $util.commonMergerCountSql(countSql, findModel, true),
+            $util.commonMergerCountSql(countSql, findInfo, true),
             countParam,
             (err, result) => {
               if (err) {
@@ -369,23 +369,6 @@ export class PurchaseService {
         $util.commonCommit(res, [getList, getCount], connection);
       });
     });
-    /*if(req.session.user.roleId === 5) {
-                  sql = $sql.findAllPurchaseByAdminAndPage;
-                }else{
-                  sql = $sql.findAllPurchaseByEmployeeAndPage;
-                  param.push(req.session.user.id);
-                }
-                this.pool.getConnection((err, connection:Connection) => {
-                  connection.query(sql, param, (err, result) => {
-                    if(result) {
-                      result = {
-                        code : true,
-                        result : result
-                      }
-                    }
-                    $util.closeConnection(res, result, connection);
-                  })
-                });*/
   }
   //审核进货单
   reviewPurchase(req, res, next) {

@@ -8,29 +8,29 @@ export const $sql = {
     'INSERT into bill_info(infoId, billId, commodityId, commodityNum) values ?',
   //保存收银单的额外信息
   saveBillOfOther:
-    'INSERT into bill_list(billId, memberId, billUserId, totalMoney,  totalNum, systemTime, billTime) values(?, ?, ?, ?, ?, ?, ?)',
+    'INSERT into bill_list(billId, customerId, billUserId, totalMoney,  totalNum, systemTime, billTime) values(?, ?, ?, ?, ?, ?, ?)',
   //更新收银单中购买商品实际库存数量
   updateBillToStore:
-    'UPDATE store set FactStoreNum=FactStoreNum-? where commodityId=?',
+    'UPDATE store set factStoreNum=factStoreNum-? where commodityId=?',
 
-  //获取指定员工指定页数的收银单管理信息
+  //获取指定员工指定页数的收银单信息
   findBillByEmployeeAndPage:
-    'SELECT bl.*, m.`name`, (SELECT e.`name` FROM employee e where bl.billUserId=e.employeeId) as billUserName,(SELECT d.discount FROM discount d WHERE d.discountId = m.discountId ) AS discountValue FROM bill_list bl LEFT JOIN member m ON bl.memberId = m.memberId WHERE bl.billUserId =?',
+    'SELECT bl.*, m.`name`, (SELECT e.`name` FROM employee e where bl.billUserId=e.employeeId) as billUserName,(SELECT d.discount FROM discount d WHERE d.discountId = m.discountId ) AS discountValue FROM bill_list bl LEFT JOIN member m ON bl.customerId = m.memberId WHERE bl.billUserId =?',
 
   //获取指定页数的收银单
   findBillByPage:
-    'SELECT bl.*, m.`name`, (SELECT e.`name` FROM employee e where bl.billUserId=e.employeeId) as billUserName,(SELECT d.discount FROM discount d WHERE d.discountId = m.discountId ) AS discountValue FROM bill_list bl LEFT JOIN member m ON bl.memberId = m.memberId',
+    'SELECT bl.*, m.`name`, (SELECT e.`name` FROM employee e where bl.billUserId=e.employeeId) as billUserName,(SELECT d.discount FROM discount d WHERE d.discountId = m.discountId ) AS discountValue FROM bill_list bl LEFT JOIN member m ON bl.customerId = m.memberId',
 
   //通过收银单号查询指定收银清单信息
   findCommodityByBillId:
-    'SELECT bl.*, bi.commodityId,	bi.commodityNum, (SELECT e.`name` FROM employee e WHERE bl.billUserId = e.employeeId) AS billUserName, m.`name` AS memberName, d.discount, c.barcode, c.name, c.costPrice, c.retailPrice, (SELECT u.`name` FROM unit u WHERE c.unitId = u.unitId) as unitName FROM bill_list bl LEFT JOIN bill_info bi ON bl.billId = bi.billId LEFT JOIN member m ON bl.memberId = m.memberId LEFT JOIN discount d ON d.discountId = m.discountId LEFT JOIN commodity c ON bi.commodityId = c.commodityId WHERE bl.billId = ?',
+    'SELECT bl.*, bi.commodityId,	bi.commodityNum, (SELECT e.`name` FROM employee e WHERE bl.billUserId = e.employeeId) AS billUserName, m.`name` AS memberName, d.discount, c.barcode, c.name, c.costPrice, c.discountRate, (SELECT u.`name` FROM unit u WHERE c.unitId = u.unitId) as unitName FROM bill_list bl LEFT JOIN bill_info bi ON bl.billId = bi.billId LEFT JOIN member m ON bl.customerId = m.memberId LEFT JOIN discount d ON d.discountId = m.discountId LEFT JOIN commodity c ON bi.commodityId = c.commodityId WHERE bl.billId = ?',
 
   //获取指定页数的收银单商品信息
   findAllCommodityByEmployeeAndPage:
-    'SELECT bl.*, bi.commodityId, bi.commodityNum, ( SELECT e.`name` FROM employee e WHERE bl.billUserId = e.employeeId ) AS billUserName, m.`name` AS memberName, d.discount, c.barcode, c. name, c.costPrice, c.retailPrice, c.format, ( SELECT u.`name` FROM unit u WHERE c.unitId = u.unitId ) AS unitName, ( SELECT s.FactStoreNum FROM store s WHERE c.commodityId = s.commodityId ) AS factStoreNum FROM bill_list bl LEFT JOIN bill_info bi ON bl.billId = bi.billId LEFT JOIN member m ON bl.memberId = m.memberId LEFT JOIN discount d ON d.discountId = m.discountId LEFT JOIN commodity c ON bi.commodityId = c.commodityId WHERE bl.billUserId = ?',
+    'SELECT bl.*, bi.commodityId, bi.commodityNum, ( SELECT e.`name` FROM employee e WHERE bl.billUserId = e.employeeId ) AS billUserName, m.`name` AS memberName, d.discount, c.barcode, c. name, c.costPrice, c.discountRate, c.format, ( SELECT u.`name` FROM unit u WHERE c.unitId = u.unitId ) AS unitName, ( SELECT s.factStoreNum FROM store s WHERE c.commodityId = s.commodityId ) AS factStoreNum FROM bill_list bl LEFT JOIN bill_info bi ON bl.billId = bi.billId LEFT JOIN member m ON bl.customerId = m.memberId LEFT JOIN discount d ON d.discountId = m.discountId LEFT JOIN commodity c ON bi.commodityId = c.commodityId WHERE bl.billUserId = ?',
   //管理员获取指定页数收银单商品信息
   findAllCommodityByAdminAndPage:
-    'SELECT bl.*, bi.commodityId, bi.commodityNum, ( SELECT e.`name` FROM employee e WHERE bl.billUserId = e.employeeId ) AS billUserName, m.`name` AS memberName, d.discount, c.barcode, c.name, c.costPrice, c.retailPrice, c.format, ( SELECT u.`name` FROM unit u WHERE c.unitId = u.unitId ) AS unitName, ( SELECT s.FactStoreNum FROM store s WHERE c.commodityId = s.commodityId ) AS factStoreNum FROM bill_list bl LEFT JOIN bill_info bi ON bl.billId = bi.billId LEFT JOIN member m ON bl.memberId = m.memberId LEFT JOIN discount d ON d.discountId = m.discountId LEFT JOIN commodity c ON bi.commodityId = c.commodityId',
+    'SELECT bl.*, bi.commodityId, bi.commodityNum, ( SELECT e.`name` FROM employee e WHERE bl.billUserId = e.employeeId ) AS billUserName, m.`name` AS memberName, d.discount, c.barcode, c.name, c.costPrice, c.discountRate, c.format, ( SELECT u.`name` FROM unit u WHERE c.unitId = u.unitId ) AS unitName, ( SELECT s.factStoreNum FROM store s WHERE c.commodityId = s.commodityId ) AS factStoreNum FROM bill_list bl LEFT JOIN bill_info bi ON bl.billId = bi.billId LEFT JOIN member m ON bl.customerId = m.memberId LEFT JOIN discount d ON d.discountId = m.discountId LEFT JOIN commodity c ON bi.commodityId = c.commodityId',
 
   //获取收银单中商品信息的总数（管理员）
   findBillCommodityCountByAdmin:
