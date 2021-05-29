@@ -47,7 +47,7 @@ export const commoditySqlMap = {
     'SELECT c.commodityId, c.barcode, c.name, c.format,c.place,u.name as unitName, c.costPrice, c.discountRate,s.FactStoreNum, (c.quantityUpperLimit-s.FactStoreNum) as limitNum FROM commodity c, unit u, store s where c.commodityId =s.commodityId and c.Status != -2 and c.unitId = u.unitId AND s.FactStoreNum !=0',
   //模糊查询，在收银清单中模糊查询编号或条形码匹配的商品
   findLikeCommodityWhere:
-    'concat(c.commodityId, c.barcode, c.name, c.format,c.place, unitName, c.costPrice, c.discountRate, c.quantityUpperLimit)',
+    'concat(c.commodityId, c.barcode, c.name, c.format,c.place, unitName, c.costPrice, c.discountRate, c.quantityLowerLimit, IFNULL(c.quantityUpperLimit,""),c.createDate )',
   findLikeCommodity:
     'SELECT c.commodityId, c.barcode, c.name, c.format,c.place,u.name as unitName, c.costPrice, c.discountRate,s.FactStoreNum, (c.quantityUpperLimit-s.FactStoreNum) as limitNum FROM commodity c, unit u, store s where c.commodityId =s.commodityId and c.Status != -2 and s.FactStoreNum != 0 and c.unitId = u.unitId AND concat(c.commodityId, c.barcode) LIKE "%"?"%"',
   //获取指定类型的商品资料信息

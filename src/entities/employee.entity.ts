@@ -5,7 +5,7 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
-  PrimaryColumn,
+  PrimaryColumn, PrimaryGeneratedColumn,
   Timestamp,
 } from 'typeorm';
 import { Role } from './role.entity';
@@ -13,7 +13,7 @@ import { BillInfo } from './billInfo.entity';
 
 @Entity()
 export class Employee {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn("uuid")
   employeeId: string;
   @Column('varchar')
   name: string;
@@ -34,7 +34,7 @@ export class Employee {
   @Column('char', { length: 18, comment: '身份证号' })
   IdCard: string;
   @Column('date', { comment: '入职时间' })
-  entryTime: Timestamp;
+  entryTime: Date;
   @Column('int')
   sex: number;
   @Column('int', { default: 1 })

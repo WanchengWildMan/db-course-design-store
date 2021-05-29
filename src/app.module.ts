@@ -1,22 +1,13 @@
 import { Module } from '@nestjs/common';
 import { forwardRef } from 'react';
-import { BillController } from './api/bill.controller';
+import { BillController } from './controllers/bill.controller';
 
-import { InventoryController } from './api/inventory.controller';
-import { MenuController } from './api/menu.controller';
-import { UserController } from './api/user.controller';
+import { InventoryController } from './controllers/inventory.controller';
 import { AppController } from './app.controller';
 
 import { AppService } from './app.service';
-import { BillService } from './dao/impl/bill.service';
+import { BillService } from './dao/service/bill.service';
 import { CommodityService } from './dao/service/commodity.service';
-import { MenuService } from './dao/impl/menu.service';
-
-import { PurchaseService } from './dao/impl/purchase.service';
-import { EmployeeService } from './dao/impl/user/employee.service';
-import { ProvideSerivce } from './dao/impl/user/provide.service';
-import { RoleService } from './dao/impl/user/role.service';
-import { PurchaseController } from './api/purchase.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommodityController } from './controllers/commodity.controller';
 import { Commodity } from './entities/commodity.entity';
@@ -28,6 +19,7 @@ import { InventoryInfo } from './entities/inventoryInfo.entity';
 import { Purchase } from './entities/purchase.entity';
 import { Role } from './entities/role.entity';
 import { Provide } from './entities/provide.entity';
+import { InventoryService } from './dao/service/inventory.service';
 
 @Module({
   imports: [
@@ -50,7 +42,7 @@ import { Provide } from './entities/provide.entity';
           InventoryInfo,
           Purchase,
           Role,
-          Provide
+          Provide,
         ],
         migrations: ['../migration/**/*.ts'],
         subscribers: ['../subscriber/**/*.ts'],
@@ -72,8 +64,8 @@ import { Provide } from './entities/provide.entity';
   controllers: [
     AppController,
     CommodityController,
-    // BillController,
-    // InventoryController,
+    BillController,
+    InventoryController,
     // MenuController,
     // UserController,
     // PurchaseController,
@@ -85,8 +77,10 @@ import { Provide } from './entities/provide.entity';
     // EmployeeService,
     // PurchaseService,
     // RoleService,
-    // BillService,
+    BillService,
+    InventoryService,
     // MenuService,
   ],
 })
-export class AppModule {}
+export class AppModule {
+}

@@ -16,6 +16,7 @@ const $sql = new BillService();
 @ApiTags('收银台')
 @Controller('/api/bill')
 export class BillController {
+  private readonly $sql: BillService
   /**
    * 保存一张收银单
    */

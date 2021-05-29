@@ -26,7 +26,8 @@ export class CommodityService {
     private readonly $unit: Repository<Unit>,
     @InjectRepository(InventoryInfo)
     private readonly $inventory: Repository<InventoryInfo>,
-  ) {}
+  ) {
+  }
 
   pak(ok: boolean, item: string, opr: string) {
     return { code: ok, msg: item + opr + (ok ? '成功' : '失败') };
@@ -104,8 +105,8 @@ export class CommodityService {
   async findCommodityById(req, res, next): Promise<any> {
     const param: string = req.query.commodityId;
     return await (!param || param == ''
-      ? this.$commodity.find()
-      : this.$commodity.find({ commodityId: param })
+        ? this.$commodity.find()
+        : this.$commodity.find({ commodityId: param })
     )
       .then((result) => {
         $util.jsonWrite(res, result);
@@ -120,8 +121,7 @@ export class CommodityService {
    *   模糊查询商品 TODO
    */
   async findLikeCommodity(req, res, next) {
-    let param = req.commodityKey;
-
+    let param = req.query.commodityKey;
     return await getManager()
       .find(Commodity, {
         where: $sql.findLikeCommodityWhere + ` LIKE '%${!param ? '' : param}%'`,

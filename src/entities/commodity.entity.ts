@@ -4,7 +4,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
+  OneToMany, OneToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -16,14 +16,17 @@ import { Unit } from './unit.entity';
 import { Provide } from './provide.entity';
 import { Purchase } from './purchase.entity';
 import { type } from 'os';
+import { BillInfo } from './billInfo.entity';
+import { InventoryInfo } from './inventoryInfo.entity';
+import { IsEmail, Length } from 'class-validator';
+import { inventoryMap } from '../dao/map/inventoryMap';
 
 @Entity()
 export class Commodity {
   @PrimaryGeneratedColumn('uuid')
   commodityId: string;
-
-  // @Column('varchar', { comment: '种类编号' })
-  // categoryId: string;
+  @Column('int', { comment: '种类编号', nullable: true })
+  categoryId: number;
   @ManyToOne((type) => Category, (category) => category.commoditys, {
     eager: true,
     onDelete: 'SET NULL',
@@ -31,7 +34,8 @@ export class Commodity {
   })
   @JoinColumn({ name: 'categoryId' })
   category: Category;
-  @Column('varchar')
+
+  @Column('char', { length: 13, comment: '条形码', unique: true })
   barcode: string;
   @Column('varchar', { comment: '商品名' })
   name: string;
@@ -51,13 +55,15 @@ export class Commodity {
   unit: Unit;
   @Column('double', { comment: '定价' })
   costPrice: number;
+  @OneToOne(type => InventoryInfo, inventory => inventory.commodity, { eager: true })
+  inventoryInfo: InventoryInfo;
   @Column('int', { comment: '库存上限', nullable: true })
   quantityUpperLimit: number;
   @Column('int', { comment: '库存下限', nullable: true, default: 0 })
   quantityLowerLimit: number;
   @CreateDateColumn({ comment: '日期' })
   createDate: string;
-  @Column('varchar', { comment: '供应商编号' ,nullable:true})
+  @Column('varchar', { comment: '供应商编号', nullable: true })
   provideId: string;
   @OneToMany((type) => Purchase, (purchase) => purchase.commodity)
   purchases: Purchase[];
@@ -72,4 +78,5 @@ export class Commodity {
   remark: string;
   @Column('double', { comment: '折扣率', default: 1 })
   discountRate: number;
+
 }
