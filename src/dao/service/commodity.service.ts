@@ -14,7 +14,7 @@ import { Unit } from '../../entities/unit.entity';
 
 import { commoditySqlMap as $sql } from '../map/commodityMap';
 import { InventoryInfo } from '../../entities/inventoryInfo.entity';
-
+import { validate } from 'class-validator';
 @Injectable()
 export class CommodityService {
   constructor(
@@ -26,8 +26,7 @@ export class CommodityService {
     private readonly $unit: Repository<Unit>,
     @InjectRepository(InventoryInfo)
     private readonly $inventory: Repository<InventoryInfo>,
-  ) {
-  }
+  ) {}
 
   pak(ok: boolean, item: string, opr: string) {
     return { code: ok, msg: item + opr + (ok ? '成功' : '失败') };
@@ -42,44 +41,43 @@ export class CommodityService {
    *   添加一条商品信息
    */
   async saveCommodity(req, res, next) {
-    const reqCom: Commodity = req.body;
-    const commodityId = $util.uuid(8, 10);
-    return await getManager()
-      .transaction(async (entityManager: EntityManager) => {
-        const commodity: { [propName: string]: any } = await entityManager.save(
-          Commodity,
-          reqCom,
-        );
-        //同时加入库存表
-        const inventory = new InventoryInfo();
-        this.$inventory.merge(inventory, { commodity: commodity });
-        const store = await entityManager.insert(InventoryInfo, inventory);
-      })
-      .then((result) => {
-        $util.jsonWrite(res, this.pak(true, '商品', this.ADD));
-      })
-      .catch((err) => {
-        console.log(err);
-        $util.jsonWrite(res, this.pak(false, '商品', this.ADD));
-      });
+    const reqCom: Commodity = req.body.commodity;
+    const errors = await validate(reqCom);
+    if (errors.length > 0) {
+      res.json({ errors: errors, result: [] });
+    } else
+      return await getManager()
+        .transaction(async (entityManager: EntityManager) => {
+          const commodity: { [propName: string]: any } =
+            await entityManager.save(Commodity, reqCom);
+          //同时加入库存表
+          const inventory = new InventoryInfo();
+          this.$inventory.merge(inventory, { commodity: commodity });
+          const store = await this.$inventory.save(inventory);
+        })
+        .then((result) => {
+          $util.jsonWrite(res, this.pak(true, '商品', this.ADD));
+        })
+        .catch((err) => {
+          console.log(err);
+          $util.jsonWrite(res, this.pak(false, '商品', this.ADD));
+        });
   }
 
   /**
    *   删除指定id的商品单位
    */
   async deleteUnitById(req, res, next) {
-    const param = req.params.unitId;
+    const unitId = req.query.unitId;
     return await this.$unit
-      .delete({ unitId: param })
+      .delete(unitId)
       .then((result) => {
         console.log(result);
-        if (result.raw.affectedRows > 0)
-          $util.jsonWrite(res, this.pak(true, '商品单位', this.DEL));
-        else $util.jsonWrite(res, this.pak(false, '商品单位', this.DEL));
+        res.json({ errors: [], result: result });
       })
       .catch((err) => {
         console.log(err);
-        $util.jsonWrite(res, this.pak(false, '商品单位', this.DEL));
+        res.json({ errors: err, result: [] });
       });
   }
 
@@ -87,15 +85,16 @@ export class CommodityService {
    *   删除指定id的商品信息
    */
   async deleteCommodityById(req, res, next) {
-    const param: string = req.query.commodityId;
-    return await this.$unit
-      .delete(param)
+    const commodityId = req.query.commodityId;
+    return await this.$commodity
+      .save({ commodityId: commodityId, Status: -1 })
       .then((result) => {
-        $util.jsonWrite(res, this.pak(true, '商品信息', this.DEL));
+        //库存会被级联删除
+        res.json({ errors: [], result: result });
       })
       .catch((err) => {
         console.log(err);
-        $util.jsonWrite(res, this.pak(false, '商品信息', this.DEL));
+        res.json({ errors: err, result: [] });
       });
   }
 
@@ -103,38 +102,53 @@ export class CommodityService {
    *  查询指定Id的商品信息
    */
   async findCommodityById(req, res, next): Promise<any> {
-    const param: string = req.query.commodityId;
-    return await (!param || param == ''
-        ? this.$commodity.find()
-        : this.$commodity.find({ commodityId: param })
-    )
+    const commodityId: string = req.query.commodityId;
+    const findInfo =
+      !commodityId || commodityId == '' ? null : { commodityId: commodityId };
+    this.$commodity
+      .find(findInfo)
       .then((result) => {
-        $util.jsonWrite(res, result);
+        res.json({ errors: [], result: result });
       })
       .catch((err) => {
         console.log(err);
-        $util.jsonWrite(res, this.pak(false, '商品信息', this.FIND));
+        res.json({ errors: err, result: [] });
       });
   }
 
   /**
    *   模糊查询商品 TODO
    */
-  async findLikeCommodity(req, res, next) {
-    let param = req.query.commodityKey;
+  async findCommodityByPage(req, res, next) {
+    let pageInfo = req.body.pageInfo;
+    let findInfo = req.body.findInfo;
+    let key = findInfo.key;
+    const COMMODITY_ALIAS = 'c';
+    if (key != undefined) {
+      Object.assign(findInfo, {
+        where: `concat(${Object.keys(new Commodity()).map((e) => {
+          return `${COMMODITY_ALIAS}.` + e;
+        })}) LIKE '%${!key ? '' : key}%'`,
+      });
+    } else findInfo = { where: findInfo };
+
+    Object.assign(findInfo, {
+      join: {
+        alias: COMMODITY_ALIAS,
+      },
+    });
+    console.log(findInfo);
     return await getManager()
-      .find(Commodity, {
-        where: $sql.findLikeCommodityWhere + ` LIKE '%${!param ? '' : param}%'`,
-        join: {
-          alias: 'c',
-        },
-      })
+      .find(Commodity, findInfo)
       .then((result) => {
-        $util.jsonWrite(res, result);
+        result = pageInfo
+          ? $util.page(result, pageInfo.page, pageInfo.currentPage)
+          : result;
+        res.json({ errors: [], result: result });
       })
       .catch((err) => {
         console.log(err);
-        $util.jsonWrite(res, this.pak(false, '商品信息', this.FIND));
+        res.json({ errors: err, result: [] });
       });
 
     // $util.closeConnection(res,)
@@ -147,16 +161,16 @@ export class CommodityService {
   /**
    *   添加一个新的商品类型
    */
-  async saveSort(req, res, next) {
-    const data: Category = req.body;
+  async saveCategory(req, res, next) {
+    const data: Category = req.body.category;
     return await this.$category
       .save(data)
       .then((result) => {
-        $util.jsonWrite(res, this.pak(true, '商品类型', this.ADD));
+        res.json({ errors: [], result: result });
       })
       .catch((err) => {
         console.log(err);
-        $util.jsonWrite(res, this.pak(false, '商品类型', this.ADD));
+        res.json({ errors: err, result: [] });
       });
   }
 
@@ -164,15 +178,41 @@ export class CommodityService {
    *   添加一条新的商品单位
    */
   async saveUnit(req, res, next) {
-    const data: Unit = req.body;
+    const unit = req.body.unit;
     return await this.$unit
-      .save(data)
+      .save(unit)
       .then((result) => {
-        $util.jsonWrite(res, this.pak(true, '商品单位', this.ADD));
+        res.json({ errors: [], result: result });
       })
       .catch((err) => {
         console.log(err);
-        $util.jsonWrite(res, this.pak(false, '商品单位', this.ADD));
+        res.json({ errors: err, result: [] });
+      });
+  }
+  async findUnitById(req, res, next) {
+    const unitId = req.query.unitId;
+    const findInfo = unitId ? { unitId: unitId } : null;
+    return await this.$unit
+      .find(findInfo)
+      .then((result) => {
+        res.json({ errors: [], result: result });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.json({ errors: err, result: [] });
+      });
+  }
+  async findUnitByPage(req, res, next) {
+    let findInfo = req.body.findInfo;
+    findInfo = { where: findInfo };
+    this.$unit
+      .find(findInfo)
+      .then((result) => {
+        res.json({ errors: [], result: result });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.json({ errors: err, result: [] });
       });
   }
 }

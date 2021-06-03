@@ -5,6 +5,8 @@ import { Employee } from './employee.entity';
 export class Role {
   @PrimaryColumn()
   roleId: number;
+  @Column()
+  roleLevel: number;
   @Column({ nullable: false, unique: true })
   roleName: string;
   @OneToMany((type) => Employee, (employee) => employee.role)

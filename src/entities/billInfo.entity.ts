@@ -15,24 +15,30 @@ import { IsArray } from 'class-validator';
 export class BillInfo {
   @PrimaryGeneratedColumn('uuid', { comment: '收银单ID' })
   billId: string;
-  // @Column('varchar', { comment: '商品ID' })
-  // commodityId: string;
-  @ManyToMany(type => Commodity)
-  @JoinTable()
-  commoditys: Commodity[];
-  @Column({ comment: '商品个数数组' })
-  commodityNum: string;
+  @PrimaryColumn('varchar',)
+  commodityId: string;
+  @ManyToOne(type => Commodity, commodity => commodity.billInfos, {
+    eager: true,
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'commodityId' })
+  commodity: Commodity;
+  @Column({ comment: '商品数量', default: 1 })
+  commodityNum: number;
   @Column('varchar', { comment: '员工id' })
   employeeId: string;
-  @ManyToOne((type) => Employee, (employee) => employee.bills, { eager: true })
+  @ManyToOne((type) => Employee, (employee) => employee.bills, {
+    eager: true,
+    onUpdate: 'CASCADE',
+    onDelete: 'NO ACTION',
+  })
   @JoinColumn({ name: 'employeeId' })
   billUser: Employee;
   @Column('varchar', { comment: '顾客姓名或ID' })
   customerId;
-  @Column('double', { comment: '总金额' })
+  @Column('double', { comment: '总金额，商品单价会变化' })
   totalMoney;
-  @Column('int')
-  totalNum;
   @CreateDateColumn({ comment: '制单时间' })
   systemTime;
   @CreateDateColumn({ comment: '收银时间' })

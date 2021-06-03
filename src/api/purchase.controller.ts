@@ -9,9 +9,12 @@ import {
   Req,
   Res,
   Next,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { PurchaseService } from 'src/dao/impl/purchase.service';
+import { AppGuard } from 'src/app.guard';
+import { Roles } from 'src/roles.decorator';
 
 const $sql = new PurchaseService();
 

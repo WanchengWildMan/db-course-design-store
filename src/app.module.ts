@@ -16,10 +16,29 @@ import { BillInfo } from './entities/billInfo.entity';
 import { Unit } from './entities/unit.entity';
 import { Employee } from './entities/employee.entity';
 import { InventoryInfo } from './entities/inventoryInfo.entity';
-import { Purchase } from './entities/purchase.entity';
+import { PurchaseInfo } from './entities/purchaseInfo.entity';
 import { Role } from './entities/role.entity';
 import { Provide } from './entities/provide.entity';
 import { InventoryService } from './dao/service/inventory.service';
+import { ProvideController } from './controllers/provide.controller';
+import { ProvideSerivce } from './dao/service/provide.service';
+import { UserController } from './controllers/user.controller';
+import { EmployeeService } from './dao/service/user/employee.service';
+import { RoleService } from './dao/service/user/role.service';
+import { PurchaseController } from './controllers/purchase.controller';
+import { PurchaseService } from './dao/service/purchase.service';
+
+const entities = [
+  Commodity,
+  Category,
+  Unit,
+  BillInfo,
+  Employee,
+  InventoryInfo,
+  PurchaseInfo,
+  Role,
+  Provide,
+];
 
 @Module({
   imports: [
@@ -33,50 +52,34 @@ import { InventoryService } from './dao/service/inventory.service';
         database: 'test',
         synchronize: true,
         logging: true,
-        entities: [
-          Commodity,
-          Category,
-          Unit,
-          BillInfo,
-          Employee,
-          InventoryInfo,
-          Purchase,
-          Role,
-          Provide,
-        ],
+        entities: entities,
         migrations: ['../migration/**/*.ts'],
         subscribers: ['../subscriber/**/*.ts'],
       }),
     }),
 
     TypeOrmModule.forRoot(),
-    TypeOrmModule.forFeature([
-      Commodity,
-      Category,
-      Unit,
-      BillInfo,
-      Employee,
-      InventoryInfo,
-      Purchase,
-      Role,
-    ]),
+    TypeOrmModule.forFeature(entities),
   ],
   controllers: [
     AppController,
     CommodityController,
     BillController,
     InventoryController,
+    ProvideController,
+  
     // MenuController,
-    // UserController,
-    // PurchaseController,
+    UserController,
+    PurchaseController,
   ],
   providers: [
     AppService,
     CommodityService,
-    // ProvideSerivce,
-    // EmployeeService,
-    // PurchaseService,
-    // RoleService,
+    ProvideSerivce,
+    ProvideSerivce,
+    EmployeeService,
+    PurchaseService,
+    RoleService,
     BillService,
     InventoryService,
     // MenuService,

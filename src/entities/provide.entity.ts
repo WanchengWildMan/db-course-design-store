@@ -6,7 +6,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Commodity } from './commodity.entity';
-import { IsEmail, Length } from 'class-validator';
+import { IsEmail, IsPhoneNumber, Length } from 'class-validator';
+
 @Entity()
 export class Provide {
   @PrimaryGeneratedColumn('uuid', { comment: '供应商ID' })
@@ -15,8 +16,8 @@ export class Provide {
   name: string;
   @Column()
   contactPerson: string;
-  @Column('char')
-  @Length(11, 11)
+  @Column('char', { length: 11 })
+  @IsPhoneNumber()
   contactPhone: string;
   @Column()
   contactAddress: string;
@@ -25,8 +26,8 @@ export class Provide {
   contactEmail: string;
   @OneToMany((type) => Commodity, (commodity) => commodity.provide)
   commoditys: Commodity[];
-  @Column('int')
+  @Column('int', { default: 1 })
   Status: number;
-  @Column()
+  @Column({ default: '' })
   remark: string;
 }

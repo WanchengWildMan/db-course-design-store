@@ -1,7 +1,9 @@
-import { Controller, Get, Req, Res, Next } from '@nestjs/common';
+import { Controller, Get, Req, Res, Next, UseFilters } from '@nestjs/common';
+import { AppFilter } from './app.filter';
 import { AppService } from './app.service';
 
 @Controller()
+@UseFilters()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 

@@ -10,6 +10,7 @@ import { InventoryInfo } from '../../entities/inventoryInfo.entity';
 import { getManager, Repository, Timestamp } from 'typeorm';
 import { BillInfo } from '../../entities/billInfo.entity';
 import { Commodity } from '../../entities/commodity.entity';
+import { PageInfo } from '../../shop.decl';
 
 //使用连接池，提升性能
 let pak = (ok: boolean, item: string, opr: string) => {
@@ -20,20 +21,38 @@ const DEL = '删除';
 const UPD = '更新';
 const FIND = '查找';
 
+/**
+ * 不允许直接删除，必须等商品删除后一并
+ */
 @Injectable()
 export class InventoryService {
-  constructor(@InjectRepository(InventoryInfo)
-              private readonly $inventoryInfo: Repository<InventoryInfo>) {
-  }
+  constructor(
+    @InjectRepository(InventoryInfo)
+    private readonly $inventoryInfo: Repository<InventoryInfo>,
+  ) {}
 
-  async updateInventory(updateInfo: { commodityId: string, isPurchase: boolean, num: number }) {
+  async updateInventory(updateInfo: {
+    commodityId: string;
+    isPurchase: boolean;
+    num: number;
+  }) {
     let queryRunner = this.$inventoryInfo.manager.queryRunner;
+    let errors = [];
+    let result = {};
     // await queryRunner.connect()
     // await queryRunner.startTransaction()
-
-    let result = await this.$inventoryInfo.increment({ commodityId: updateInfo.commodityId }, 'inventoryNum', updateInfo.isPurchase ? updateInfo.num : -updateInfo.num);
-    return { updateResult: result, plainResult: pak((result.affected > 0), '库存', UPD) };
-
+    try {
+      result = await this.$inventoryInfo.increment(
+        { commodityId: updateInfo.commodityId },
+        'inventoryNum',
+        updateInfo.isPurchase ? updateInfo.num : -updateInfo.num,
+      );
+    } catch (err) {
+      console.log(err);
+      errors.push(err);
+    } finally {
+      return { errors: errors, result: result };
+    }
   }
 
   /**
@@ -49,21 +68,35 @@ export class InventoryService {
     //   return;
     // }
     let findInfo = req.body.findInfo;
-    let pageInfo = req.body.pageInfo;
-    const inventoryInfos = await this.$inventoryInfo.createQueryBuilder('ii')
+    let pageInfo: PageInfo = req.body.pageInfo;
+    this.$inventoryInfo
+      .createQueryBuilder('ii')
       .leftJoinAndSelect(Commodity, 'c', 'c.commodityId=ii.commodityId')
       .where(':startDate<ii.inventoryTime AND ii.inventoryTime<=:endDate', {
         //FIXME
-        'startDate': (findInfo && findInfo.startDate) ? new Date(findInfo.startDate) : new Date(0),
-        'endDate': (findInfo && findInfo.endDate) ? findInfo.endDate : new Date(Date.now()),
-      }).getMany();
-    inventoryInfos.filter((el) => {
-      !findInfo || !findInfo.categoryId || el.commodity.category == findInfo.categoryId;
-    });
-    $util.jsonWrite(res, inventoryInfos);
-
+        startDate:
+          findInfo && findInfo.startDate
+            ? new Date(findInfo.startDate)
+            : new Date(0),
+        endDate:
+          findInfo && findInfo.endDate
+            ? findInfo.endDate
+            : new Date(Date.now()),
+      })
+      .getMany()
+      .then((result) => {
+        result.filter((el) => {
+          !findInfo ||
+            !findInfo.categoryId ||
+            el.commodity.category == findInfo.categoryId;
+        });
+        res.json({ errors: [], result: result });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.json({ errors: err, result: [] });
+      });
   }
-
 }
 
 //

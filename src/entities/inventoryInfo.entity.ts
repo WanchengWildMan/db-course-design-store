@@ -13,19 +13,18 @@ import { commoditySqlMap } from '../dao/map/commodityMap';
 @Entity()
 //库存
 export class InventoryInfo {
-  @PrimaryGeneratedColumn()
-  inventoryId: string;
-  @Column('varchar', { comment: '商品ID' })
+  @PrimaryColumn('varchar', { comment: '商品ID' })
   commodityId: string;
-  @OneToOne((type) => Commodity,comodity=>comodity.inventoryInfo,{onUpdate:'CASCADE',onDelete:"CASCADE"})
+  @OneToOne((type) => Commodity, (comodity) => comodity.inventoryInfo, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'commodityId' })
   commodity: Commodity;
   @Column('double', { comment: '存量', default: 0 })
-  inventoryNum;
+  inventoryNum: number;
   @CreateDateColumn()
-  inventoryTime;
-  @Column('double', { default: 0 })
-  totalMoney;
+  inventoryTime: string;
   @Column('text', { nullable: true })
-  remark;
+  remark: string;
 }

@@ -9,6 +9,7 @@ export function extend(target, source, flag?) {
   }
   return target;
 }
+
 //返回简单信息的封装
 export function jsonWrite(res, ret) {
   if (ret == undefined) {
@@ -24,6 +25,7 @@ export function jsonWrite(res, ret) {
     });
   }
 }
+
 //断开连接
 export function closeConnection(res, result, connection) {
   //返回结果
@@ -32,6 +34,7 @@ export function closeConnection(res, result, connection) {
   //释放连接
   connection.release();
 }
+
 //通用合并查询sql字符串
 export function traversalSql(sourceSql, childSql, pageInfo, type) {
   let pageSql =
@@ -49,6 +52,7 @@ export function traversalSql(sourceSql, childSql, pageInfo, type) {
   sourceSql = sourceSql + childSql + pageSql;
   return sourceSql;
 }
+
 //拼装查询条件sql
 export function traversal(obj) {
   let childSql = '';
@@ -57,10 +61,10 @@ export function traversal(obj) {
     if (obj[key] instanceof Object) {
       //若为时间段即为时间段
       if (obj[key].startDate !== '') {
-        childStr.push(key + '>=' + "'" + obj[key].startDate + "'");
+        childStr.push(key + '>=' + '\'' + obj[key].startDate + '\'');
       }
       if (obj[key].endDate !== '') {
-        childStr.push(key + '<=' + "'" + obj[key].endDate + "'");
+        childStr.push(key + '<=' + '\'' + obj[key].endDate + '\'');
       }
     } else if (obj[key] !== '') {
       childStr.push(key + '=' + obj[key]);
@@ -78,6 +82,7 @@ export function traversal(obj) {
   }
   return childSql;
 }
+
 //拼装查询指定条件下的数据总数
 export function traversalCountSql(sourceSql, childSql, type) {
   if (childSql !== '') {
@@ -98,6 +103,7 @@ export function commonMergerSql(sourceSql, findInfo, pageInfo, type) {
   sql = traversalSql(sourceSql, childSql, pageInfo, type);
   return sql;
 }
+
 //合并通用查询指定条件下的数据总数sql语句
 export function commonMergerCountSql(sourceSql, findInfo, type) {
   let sql = '';
@@ -109,7 +115,7 @@ export function commonMergerCountSql(sourceSql, findInfo, type) {
 //通用提交多sql语句执行
 export function commonCommit(res, sqlArr, connection) {
   async.series(sqlArr, (err, result) => {
-    let r = function (code, msg) {
+    let r = function(code, msg) {
       return {
         code: code,
         result: result,
@@ -163,3 +169,9 @@ export function uuid(len, radix) {
   }
   return uuid.join('');
 }
+
+export const page = (arr: any[], page?: number, currentPage?: number) => {
+  let st = currentPage && page ? (currentPage-1) * page : 0;
+  let ed = currentPage && page ? Math.min(currentPage * page, arr.length) : arr.length;
+  return arr.slice(st, ed);
+};

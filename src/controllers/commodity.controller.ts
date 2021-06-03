@@ -8,12 +8,15 @@ import {
   Req,
   Res,
   Next,
+  UseGuards,
 } from '@nestjs/common';
 import { CommodityService } from '../dao/service/commodity.service';
 import { ApiTags } from '@nestjs/swagger';
+import { AppGuard } from 'src/app.guard';
 
 @ApiTags('商品')
 @Controller('/api/commodity')
+@UseGuards(AppGuard)
 export class CommodityController {
   private readonly logger: Logger = new Logger('CommodityController');
 
@@ -24,15 +27,15 @@ export class CommodityController {
   /**
    * 添加一个商品类型
    */
-  @Post('/addSort')
-  addSort(@Req() req, @Res() res, @Next() next) {
-    this.$sql.saveSort(req, res, next);
+  @Post('/saveCategory')
+  saveCategory(@Req() req, @Res() res, @Next() next) {
+    this.$sql.saveCategory(req, res, next);
   }
 
   /**
-   * 添加一个商品单位
+   * 保存一个商品单位
    */
-  @Post('/addUnit')
+  @Post('/saveUnit')
   addUnit(@Req() req, @Res() res, @Next() next) {
     this.$sql.saveUnit(req, res, next);
   }
@@ -50,13 +53,13 @@ export class CommodityController {
   //   this.$sql.findSortByPage(req, res, next);
   // }
   //
-  // /**
-  //  * 获取指定页数的商品单位
-  //  */
-  // @Get('/findUnitByPage')
-  // findUnitByPage(@Req() req, @Res() res, @Next() next) {
-  //   this.$sql.findUnitByPage(req, res, next);
-  // }
+  /**
+   * 获取指定页数的商品单位
+   */
+  @Get('/findUnitByPage')
+  findUnitByPage(@Req() req, @Res() res, @Next() next) {
+    this.$sql.findUnitByPage(req, res, next);
+  }
   //
   /**
    * 获取指定页数的商品资料信息
@@ -66,46 +69,14 @@ export class CommodityController {
   findCommodityById(@Req() req, @Res() res, @Next() next) {
     this.$sql.findCommodityById(req, res, next);
   }
-  //
-  // /**
-  //  * 获取所有商品指定信息
-  //  */
-  // @Get('/getSelectCommodityList')
-  // getSelectCommodityList(@Req() req, @Res() res, @Next() next) {
-  //   this.$sql.getSelectCommodityList(req, res, next);
-  // }
-  //
-  // /**
-  //  * 获取所有的商品类型
-  //  */
-  // @Get('/findAllSort')
-  // findAllSort(@Req() req, @Res() res, @Next() next) {
-  //   this.$sql.findAllSort(req, res, next);
-  // }
-  //
-  // /**
-  //  * 获取所有的商品单位
-  //  */
-  // @Get('/findAllUnit')
-  // findAllUnit(@Req() req, @Res() res, @Next() next) {
-  //   this.$sql.findAllUnit(req, res, next);
-  // }
-  //
-  // /**
-  //  * 更新指定商品类型
-  //  */
-  // @Put('/updateSortById')
-  // updateSortById(@Req() req, @Res() res, @Next() next) {
-  //   this.$sql.updateSortById(req, res, next);
-  // }
-  //
-  // /**
-  //  * 更新指定商品单位
-  //  */
-  // @Put('/updateUnitById')
-  // updateUnitById(@Req() req, @Res() res, @Next() next) {
-  //   this.$sql.updateUnitById(req, res, next);
-  // }
+
+  /**
+   * 更新指定商品单位
+   */
+  @Get('/findUnitById')
+  findUnitById(@Req() req, @Res() res, @Next() next) {
+    this.$sql.findUnitById(req, res, next);
+  }
   //
   // /**
   //  * 更新指定商品资料的状态
@@ -134,7 +105,7 @@ export class CommodityController {
   /**
    * 删除指定商品单位
    */
-  @Delete('/deleteUnitById/:unitId')
+  @Delete('/deleteUnitById')
   deleteUnitById(@Req() req, @Res() res, @Next() next) {
     this.$sql.deleteUnitById(req, res, next);
   }
@@ -150,9 +121,9 @@ export class CommodityController {
   /**
    * 模糊查询商品信息
    */
-  @Get('/findLikeCommodity')
+  @Get('/findCommodityByPage')
   async findLikeCommodity(@Req() req, @Res() res, @Next() next) {
-    let ans = await this.$sql.findLikeCommodity(req, res, next);
+    let ans = await this.$sql.findCommodityByPage(req, res, next);
     console.log(ans);
     return ans;
   }
