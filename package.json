@@ -8,7 +8,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "format": "prettier --write \\\"front-end/**/*.ts\\\" \\\"test/**/*.ts\\\"",
+    "format": "prettier --write \\\\\\\"src/**/*.ts\\\\\\\" \\\\\\\"test/**/*.ts\\\\\\\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -18,19 +18,29 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "serve": "vue-cli-service serve"
   },
   "dependencies": {
+    "@babel/core": "^7.14.3",
+    "@babel/runtime": "^7.14.0",
     "@nestjs/common": "^7.6.17",
     "@nestjs/core": "^7.6.17",
     "@nestjs/platform-express": "^7.6.17",
     "@nestjs/swagger": "^4.8.0",
     "@types/react": "^17.0.6",
+    "@vue/cli": "^4.5.13",
+    "@vue/cli-service": "^4.5.13",
+    "@vue/component-compiler-utils": "^3.2.0",
     "async": "^3.2.0",
+    "async-validator": "^3.5.2",
     "class-validator": "^0.13.1",
     "cookie-parser": "^1.4.3",
+    "core-js": "^3.13.1",
     "crypto": "0.0.3",
+    "echarts": "^5.1.1",
     "element-ui": "^1.2.9",
+    "eslint-plugin-vue": "^7.10.0",
     "express-session": "^1.17.2",
     "mysql": "^2.13.0",
     "reflect-metadata": "^0.1.13",
@@ -39,7 +49,10 @@
     "typeorm": "^0.2.32",
     "vue": "^2.2.6",
     "vue-resource": "^1.0.3",
-    "vue-router": "^2.3.1"
+    "vue-router": "^2.3.1",
+    "vue-template-compiler": "^2.6.13",
+    "vuetify-message": "^0.2.1",
+    "webpack-cli": "^4.7.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.5.1",
@@ -55,6 +68,7 @@
     "@types/supertest": "^2.0.10",
     "@typescript-eslint/eslint-plugin": "^4.6.1",
     "@typescript-eslint/parser": "^4.6.1",
+    "@vue/cli": "^4.5.13",
     "eslint": "^7.12.1",
     "eslint-config-prettier": "7.0.0",
     "eslint-plugin-prettier": "^3.1.4",
@@ -65,7 +79,8 @@
     "ts-loader": "^8.0.8",
     "ts-node": "^9.0.0",
     "tsconfig-paths": "^3.9.0",
-    "typescript": "^4.0.5"
+    "typescript": "^4.0.5",
+    "vue-cli-plugin-vuetify": "~2.4.1"
   },
   "jest": {
     "moduleFileExtensions": [
