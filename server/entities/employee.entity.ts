@@ -22,12 +22,16 @@ export class Employee {
   employeeId: string;
   @Column('varchar')
   name: string;
-  @Column('int')
+  @Column('int', { default: 1, nullable: true })
   roleId: number;
   @Column('varchar')
   password: string;
   //员工，普通管理层，高级管理层，董事会...
-  @ManyToOne((type) => Role, (role) => role.employees)
+  @ManyToOne((type) => Role, (role) => role.employees, {
+    eager: true,
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'roleId' })
   role: Role;
   @OneToMany((type) => BillToPeople, (billToPeople) => billToPeople.billUser)
@@ -44,7 +48,9 @@ export class Employee {
   @Column('char', { length: 18, comment: '身份证号' })
   IdCard: string;
   @CreateDateColumn()
-  entryTime: string;
+  createDate: string;
+  @CreateDateColumn()
+  updateDate: string;
   @Column('int')
   sex: number;
   @Column('int', { default: 1 })

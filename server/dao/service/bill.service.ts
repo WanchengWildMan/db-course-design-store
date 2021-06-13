@@ -1,7 +1,11 @@
 /**
  * Created by Administrator on 2017/5/10.
  */
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import * as mysql from 'mysql';
 import * as $util from '../../util/util';
 
@@ -20,6 +24,8 @@ import { PageInfo, ROLE_LEVEL_ADMIN } from '../../shop.decl';
 import { Commodity } from '../../entities/commodity.entity';
 import { validate } from 'class-validator';
 import { BillToPeople } from 'server/entities/billToPeople.entity';
+import { Employee } from 'server/entities/employee.entity';
+import { Category } from 'server/entities/category.entity';
 
 const ADD = '添加';
 const DEL = '删除';
@@ -78,6 +84,12 @@ export class BillService {
         for (let i in bill.billInfos)
           Object.assign(bill.billInfos[i], { billId: billSaved.billId });
         let resultTemp = [];
+        if (bill.billInfos.length == 0) {
+          resultTemp.push({
+            saveBillInfoResult: { errors: ['不能添加空账单！'], result: [] },
+            saveInventoryResult: { result: [], errors: ['不能添加空账单！'] },
+          });
+        }
         for (let billInfo of bill.billInfos) {
           let r1 = await this.$billInfo.save(billInfo);
           let r2 = await this.inventoryService.updateInventory({
@@ -85,6 +97,9 @@ export class BillService {
             commodityId: billInfo.commodityId,
             num: billInfo.commodityNum,
           });
+          if (r2.errors.length > 0) {
+            throw new BadRequestException(r2.errors[0]);
+          }
           resultTemp.push({
             saveBillInfoResult: r1,
             saveInventoryResult: r2.result,
@@ -131,6 +146,33 @@ export class BillService {
     }
   }
 
+  async findBillGroupByCategory(req, res, next) {
+    let findInfo = $util.getQueryInfo(req, 'findInfo', res);
+    findInfo = { where: findInfo };
+    try {
+      // let result = await getManager()
+      //   .createQueryBuilder(BillInfo, 'bi')
+      //   .leftJoinAndMapOne('bi.commodity', 'c', 'c.commodityId=bi.commodityId')
+      //   .leftJoinAndMapOne('bi.category',Category, 'ca', 'ca.categoryId=c.categoryId')
+      //   .select(['SUM(bi.totalMoney) as totalMoney'  ,'SUM(bi.commodityNum) as commodityNum','ca.name as name'])
+      //   .getMany();
+      let result = await getManager().query(`
+SELECT
+	SUM(bi.commodityNum) AS num,SUM(bi.totalMoney) AS money,ca.NAME AS categoryName 
+FROM
+	bill_info bi
+	LEFT JOIN commodity c ON c.commodityId = bi.commodityId
+	LEFT JOIN category ca ON ca.categoryId = c.categoryId 
+GROUP BY
+	ca.name
+      `);
+      res.json({ errors: [], result: result });
+    } catch (err) {
+      console.log(err);
+      res.status(400).json({ errors: [err], result: [] });
+    }
+  }
+
   //TODO groupby billId 然后算账
   //获取员工指定页数的收银单管理信息
   async findBillByEmployeeAndPage(req, res, next) {
@@ -143,7 +185,7 @@ export class BillService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     let result = {};
-
+    let errors = [];
     try {
       result = await queryRunner.manager
         .createQueryBuilder(BillInfo, 'bi')
@@ -164,11 +206,12 @@ export class BillService {
       queryRunner.commitTransaction();
     } catch (err) {
       console.log(err);
-      result = pak(false, '收银单', FIND);
+      errors.push(err);
+      res.status(400).json({ errors: [err], result: [] });
       await queryRunner.rollbackTransaction();
     } finally {
       await queryRunner.release();
-      $util.jsonWrite(res, result);
+      res.json({ errors: errors, result: result });
     }
   }
 
@@ -186,7 +229,9 @@ export class BillService {
      }
      */
     let notGroup = req.query.notGroup;
+    if (notGroup === 'false') notGroup = false;
     let findInfo = $util.getQueryInfo(req, 'findInfo', res);
+    if (findInfo.where) findInfo = findInfo.where;
     const whereStr = !(findInfo.startDate || findInfo.endDate)
       ? findInfo
       : `${
@@ -194,6 +239,7 @@ export class BillService {
         }<bi.createDate AND bi.createDate<=${
           findInfo && findInfo.endDate ? findInfo.endDate : new Date(Date.now())
         }`;
+
     // let pageInfo = $util.getQueryInfo(req, 'pageInfo', res)
     let pageInfo: PageInfo = $util.getQueryInfo(req, 'pageInfo', res);
     const connection = getConnection();
@@ -216,11 +262,25 @@ export class BillService {
             'bp',
             'bi.billId=bp.billId',
           )
+          //不能map内2层的对象！
           .leftJoinAndMapOne(
             'bi.commodity',
             Commodity,
             'commodity',
             'commodity.commodityId=bi.commodityId',
+          )
+          .leftJoinAndMapOne(
+            'bi.category',
+            Category,
+            'category',
+            'category.categoryId=commodity.categoryId',
+          )
+          //三层不行，必须单独开一个属性
+          .leftJoinAndMapOne(
+            'bi.employee',
+            Employee,
+            'e',
+            'e.employeeId=bp.employeeId',
           )
           .where(whereStr)
           .getMany();
@@ -248,16 +308,16 @@ export class BillService {
         //   console.log(err);
         //   res.json({ errors: err, result: [] });
         // });
-        result.filter((el) => {
-          !findInfo ||
-            !findInfo.categoryId ||
-            el.commodity.category == findInfo.categoryId;
-        });
+        // result.filter((el) => {
+        //   !findInfo ||
+        //     !findInfo.categoryId ||
+        //     el.commodity.category == findInfo.categoryId;
+        // });
         // console.log(billInfos);
         await queryRunner.commitTransaction();
         result = page(billInfos, pageInfo.page, pageInfo.currentPage);
       } else {
-        bills = await getManager().getRepository(BillToPeople).find();
+        bills = await getManager().getRepository(BillToPeople).find(whereStr);
 
         // bills=bills.filter(e=>{<=e.billInfos[0].createDate &&
         //   e.billInfos[0].createDate <= findInfo.endDate;})
@@ -318,24 +378,37 @@ export class BillService {
   async deleteBillByBillId(req, res, next) {
     const querys = req.query;
     const billId = querys.billId;
+    console.log(billId);
     const commodityId = req.query.commodityId;
     let deleteInfo = {};
-    if (billId) Object.assign(deleteInfo, billId);
-    if (commodityId) Object.assign(deleteInfo, commodityId);
-    console.log(deleteInfo);
-    if (Object.keys(deleteInfo).length == 0)
-      throw new ForbiddenException('无法删除！');
-    else
-      this.$billInfo.manager
-        .delete(BillInfo, deleteInfo)
+    if (billId) Object.assign(deleteInfo, { billId: billId });
+    if (commodityId) {
+      Object.assign(deleteInfo, { commodityId: commodityId });
+      console.log(deleteInfo);
+      if (Object.keys(deleteInfo).length == 0)
+        throw new ForbiddenException('未给定信息！无法删除！');
+      else
+        this.$billInfo.manager
+          .delete(BillInfo, deleteInfo)
+          .then((result) => {
+            res.json({ errors: [], result: result });
+          })
+          .catch((err) => {
+            console.log(err);
+            res.status(403).json({ errors: [err], result: [] });
+          });
+    } else {
+      getManager()
+        .getRepository(BillToPeople)
+        .delete({ billId: billId })
         .then((result) => {
           res.json({ errors: [], result: result });
         })
         .catch((err) => {
           console.log(err);
-          // $util.jsonWrite(res, pak(false, `收银单${billId}`, DEL));
-          res.json({ errors: [err], result: [] });
+          res.status(403).json({ errors: [err], result: [] });
         });
+    }
   }
 
   async saveOneBillInfo(req, res, next) {

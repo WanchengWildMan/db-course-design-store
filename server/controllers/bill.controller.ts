@@ -7,16 +7,13 @@ import { BillService } from '../dao/service/bill.service';
 @Controller('/api/bill')
 @UseGuards(AppGuard)
 export class BillController {
-  constructor(
-    private readonly $sql: BillService) {
-  }
+  constructor(private readonly $sql: BillService) {}
 
   /**
    * 保存一张收银单
    */
   @Post('/saveBill')
   saveBill(@Req() req, @Res() res, @Next() next) {
-
     this.$sql.saveBill(req, res, next);
   }
 
@@ -47,6 +44,10 @@ export class BillController {
   @Get('/findBillByPage')
   findBillByPage(@Req() req, @Res() res, @Next() next) {
     this.$sql.findBillByPage(req, res, next);
+  }
+  @Get('/findBillGroupByCategory')
+  findBillGroupByCategory(@Req() req, @Res() res, @Next() next) {
+    this.$sql.findBillGroupByCategory(req, res, next);
   }
 
   // /**

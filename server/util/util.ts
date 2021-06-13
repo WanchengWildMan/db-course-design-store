@@ -36,6 +36,8 @@ export function getQueryInfo(req, field, res) {
   } catch (err) {
     console.log(err);
     //是where就放sql注入
+    let regx = RegExp("delete[^\w]*from");
+
     if ((req.query[field] as string).toLowerCase().indexOf('where') != -1) {
       return (req.query[field] as string).replace('WHERE', '').replace('where', '').replace('delete', 'ERROR').replace('DELETE', 'ERROR').replace('UPDATE', 'ERROR').replace('update', 'ERROR');
     }

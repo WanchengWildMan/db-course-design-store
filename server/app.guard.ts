@@ -42,7 +42,7 @@ export class AppGuard implements CanActivate {
     this.logger.debug(user);
     this.logger.log(req.url);
     this.logger.log(req.body);
-    this.logger.log(req.querys);
+    this.logger.log(req.query);
     return true; //!!!
 
     if (isNoAuth) return true;

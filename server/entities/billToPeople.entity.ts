@@ -24,7 +24,7 @@ export class BillToPeople {
     eager: true,
   })
   billInfos: BillInfo[];
-  @Column('varchar', { comment: '顾客姓名或ID' })
+  @Column('varchar', { comment: '顾客姓名或ID' ,nullable:true})
   customerId: string;
   @Column('varchar', { comment: '员工id' })
   employeeId: string;

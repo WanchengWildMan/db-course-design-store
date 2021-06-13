@@ -32,8 +32,7 @@ export class InventoryService {
     private readonly $inventoryInfo: Repository<InventoryInfo>,
     @InjectRepository(Commodity)
     private readonly $commodity: Repository<Commodity>,
-  ) {
-  }
+  ) {}
 
   async updateInventory(updateInfo: {
     commodityId: string;
@@ -49,24 +48,29 @@ export class InventoryService {
     // await queryRunner.connect()
     // await queryRunner.startTransaction()
     try {
-      let inventoryInfo = await this.$inventoryInfo.findOne({ commodityId: updateInfo.commodityId });
-      if(!inventoryInfo.quantityUpperLimit)inventoryInfo.quantityUpperLimit=10000000;
+      let inventoryInfo = await this.$inventoryInfo.findOne({
+        commodityId: updateInfo.commodityId,
+      });
+      if (!inventoryInfo.quantityUpperLimit)
+        inventoryInfo.quantityUpperLimit = 10000000;
       if (isPurchase != null && isPurchase != undefined) {
         let zf = isPurchase ? 1 : -1;
         let toNum = inventoryInfo.inventoryNum + zf * num;
-        if (toNum < inventoryInfo.quantityLowerLimit || toNum > inventoryInfo.quantityUpperLimit) {
+        if (
+          toNum < inventoryInfo.quantityLowerLimit ||
+          toNum > inventoryInfo.quantityUpperLimit
+        ) {
           if (zf == 1) throw new ForbiddenException('超出库存上限，禁止进货！');
-          else if (zf == -1) throw new ForbiddenException('低于库存下限，禁止出货！');
+          else if (zf == -1)
+            throw new ForbiddenException('低于库存下限，禁止出货！');
         }
-
       }
       result = await this.$inventoryInfo.increment(
         { commodityId: updateInfo.commodityId },
         'inventoryNum',
         updateInfo.isPurchase ? updateInfo.num : -updateInfo.num,
       );
-
-        } catch (err) {
+    } catch (err) {
       console.log(err);
       errors.push(err);
     } finally {
@@ -90,8 +94,18 @@ export class InventoryService {
     let pageInfo: PageInfo = $util.getQueryInfo(req, 'pageInfo', res);
     this.$inventoryInfo
       .createQueryBuilder('ii')
-      .leftJoinAndSelect("ii.commodity","commodity")
-      .leftJoinAndMapOne("ii.category","category","category","category.categoryId=commodity.categoryId")
+      .leftJoinAndMapOne(
+        'ii.commodity',
+        Commodity,
+        'commodity',
+        'commodity.commodityId=ii.commodityId',
+      )
+      .leftJoinAndMapOne(
+        'ii.category',
+        'category',
+        'category',
+        'category.categoryId=commodity.categoryId',
+      )
       .where(':startDate<ii.inventoryTime AND ii.inventoryTime<=:endDate', {
         //FIXME
         startDate:
@@ -108,8 +122,8 @@ export class InventoryService {
         // console.log(result)
         result.filter((el) => {
           !findInfo ||
-          !findInfo.categoryId ||
-          el.commodity.category.categoryId == findInfo.categoryId;
+            !findInfo.categoryId ||
+            el.commodity.category.categoryId == findInfo.categoryId;
         });
         res.json({ errors: [], result: result });
       })
@@ -120,17 +134,21 @@ export class InventoryService {
   }
 
   async saveInventoryLimitById(inventoryInfo) {
-    inventoryInfo = Object.assign({}, {
-      commodityId: inventoryInfo.commodityId,
-      quantityLowerLimit: inventoryInfo.quantityLowerLimit,
-      quantityUpperLimit: inventoryInfo.quantityUpperLimit,
-    });
-    return await this.$inventoryInfo.save( inventoryInfo);
-
+    inventoryInfo = Object.assign(
+      {},
+      {
+        commodityId: inventoryInfo.commodityId,
+        quantityLowerLimit: inventoryInfo.quantityLowerLimit,
+        quantityUpperLimit: inventoryInfo.quantityUpperLimit,
+      },
+    );
+    return await this.$inventoryInfo.save(inventoryInfo);
   }
-  async forceUpdateInventory(inventoryInfo){
-
-    return await this.$inventoryInfo.update({ commodityId: inventoryInfo.commodityId },inventoryInfo);
+  async forceUpdateInventory(inventoryInfo) {
+    return await this.$inventoryInfo.update(
+      { commodityId: inventoryInfo.commodityId },
+      inventoryInfo,
+    );
   }
 }
 

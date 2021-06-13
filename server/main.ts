@@ -11,11 +11,13 @@ async function bootstrap() {
   app.use(
     Session({
       secret: 'userStore',
-      cookie: { maxAge: 600000000000000 },
+      cookie: { maxAge: 6000000000 },
       resave: false,
       saveUninitialized: true,
     }),
   );
+
+
   app.enableCors();
   const options = new DocumentBuilder()
     .setTitle('商店管理')

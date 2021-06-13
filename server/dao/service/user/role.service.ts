@@ -48,6 +48,7 @@ export class RoleService {
         res.json({ errors: err, result: [] });
       });
   }
+
   //删除指定角色信息
   deleteRoleById(req, res, next) {
     const roleId = req.query.roleId;
