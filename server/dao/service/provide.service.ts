@@ -64,26 +64,27 @@ export class ProvideSerivce {
   findProvideByPage(req, res, next) {
     let pageInfo = $util.getQueryInfo(req, 'pageInfo', res);
     let findInfo = $util.getQueryInfo(req, 'findInfo', res);
-
-    if (findInfo&&findInfo.key != undefined) {
+    const all = req.query.all;
+    if (findInfo && findInfo.key != undefined) {
       Object.assign(findInfo, {
         where: `concat(${Object.keys(PORVIDE_EXAMPLE)}) LIKE '%${
           findInfo.key
         }%'`,
       });
     } else findInfo = { where: findInfo };
-    console.log(findInfo)
+    console.log(findInfo);
     this.$provide
       .find(findInfo)
       .then((result) => {
         result = pageInfo
           ? $util.page(result, pageInfo.page, pageInfo.currentPage)
           : result;
-        result.filter((el) => {
-          !findInfo ||
-            !findInfo.contactAddress ||
-            el.contactAddress == findInfo.contactAddress;
-        });
+        // result.filter((el) => {
+        //   !findInfo ||
+        //     !findInfo.contactAddress ||
+        //     el.contactAddress == findInfo.contactAddress;
+        // });
+        if (!all) result = result.filter((e) => e.Status != -1);
         res.json({ errors: [], result: result });
       })
       .catch((err) => {

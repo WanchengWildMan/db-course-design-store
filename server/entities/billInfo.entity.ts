@@ -30,7 +30,7 @@ export class BillInfo {
   @ManyToOne((type) => Commodity, (commodity) => commodity.billInfos, {
     eager: true,
     onUpdate: 'CASCADE',
-    onDelete: 'CASCADE',
+    onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'commodityId' })
   commodity: Commodity;

@@ -55,4 +55,6 @@ export class Employee {
   sex: number;
   @Column('int', { default: 1 })
   Status: number;
+  @Column('varchar', { nullable: true })
+  remark: number;
 }

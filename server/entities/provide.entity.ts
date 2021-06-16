@@ -12,11 +12,11 @@ import { IsEmail, IsPhoneNumber, Length } from 'class-validator';
 export class Provide {
   @PrimaryGeneratedColumn('uuid', { comment: '供应商ID' })
   provideId: string;
-  @Column({unique:true})
+  @Column({ unique: true })
   name: string;
   @Column()
   contactPerson: string;
-  @Column('char', { length: 11 })
+  @Column('varchar', { length: 30 })
   @IsPhoneNumber()
   contactPhone: string;
   @Column()

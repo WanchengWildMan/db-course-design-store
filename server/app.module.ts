@@ -69,7 +69,7 @@ const entities = [
     BillController,
     InventoryController,
     ProvideController,
-  
+
     // MenuController,
     UserController,
     PurchaseController,
@@ -87,5 +87,4 @@ const entities = [
     // MenuService,
   ],
 })
-export class AppModule {
-}
+export class AppModule {}

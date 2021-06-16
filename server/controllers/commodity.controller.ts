@@ -13,6 +13,8 @@ import {
 import { CommodityService } from '../dao/service/commodity.service';
 import { ApiTags } from '@nestjs/swagger';
 import { AppGuard } from 'server/app.guard';
+import { Role } from 'server/entities/role.entity';
+import { Roles } from 'server/roles.decorator';
 
 @ApiTags('商品')
 @Controller('/api/commodity')
@@ -35,7 +37,7 @@ export class CommodityController {
   /**
    * 查询商品单位
    */
-  @Get  ('/findCategoryByPage')
+  @Get('/findCategoryByPage')
   findCategory(@Req() req, @Res() res, @Next() next) {
     this.$sql.findCategoryByPage(req, res, next);
   }
@@ -52,14 +54,6 @@ export class CommodityController {
     this.$sql.saveCommodity(req, res, next);
   }
 
-  // /**
-  //  * 获取指定页数的商品类型
-  //  */
-  // @Get('/findSortByPage')
-  // findSortByPage(@Req() req, @Res() res, @Next() next) {
-  //   this.$sql.findSortByPage(req, res, next);
-  // }
-  //
   /**
    * 获取指定页数的商品单位
    */
@@ -84,26 +78,10 @@ export class CommodityController {
   findUnitById(@Req() req, @Res() res, @Next() next) {
     this.$sql.findUnitById(req, res, next);
   }
-  //
-  // /**
-  //  * 更新指定商品资料的状态
-  //  */
-  // @Put('/updateCommodityStatusById')
-  // updateCommodityStatusById(@Req() req, @Res() res, @Next() next) {
-  //   this.$sql.updateCommodityStatusById(req, res, next);
-  // }
-  //
-  // /**
-  //  * 更新指定商品资料的状态
-  //  */
-  // @Put('/updateCommodityById')
-  // updateCommodityById(@Req() req, @Res() res, @Next() next) {
-  //   this.$sql.updateCommodityById(req, res, next);
-  // }
-  //
   /**
    * 删除指定商品类型
    */
+  @Roles(3)
   @Delete('/deleteCategoryById')
   deleteSortById(@Req() req, @Res() res, @Next() next) {
     this.$sql.deleteCategoryById(req, res, next);

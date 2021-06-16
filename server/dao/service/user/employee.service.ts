@@ -37,23 +37,28 @@ export class EmployeeService {
     try {
       const password_encrypt = $cipher.encrypt(password);
       let employees = await getManager().find(Employee, {
-        where: `(name='${username}' OR employeeId='${username}') AND password = '${password_encrypt}'`,
+        where: `(name='${username}' OR employeeId='${username}')`, // AND password = '${password_encrypt}'`,
       });
       if (employees.length > 0) {
         if (employees[0].Status == 0)
-          res.status(403).json({ errors: ['登录失败!该用户不可用！'], result: [] });
+          res
+            .status(403)
+            .json({ errors: ['登录失败!该用户不可用！'], result: [] });
         else {
-          //保存用户登录信息
-          req.session.user = {
-            employeeId: employees[0].employeeId,
-            name: employees[0].name,
-            roleId: employees[0].roleId,
-            password: employees[0].password,
-          };
-          req.session._expires = Date.now() + 100000;
-          res.json({ errors: [], result: '登录成功' });
+          let realPas = $cipher.decrypt(employees[0].password);
+          if (realPas !== password) {
+            res.status(403).json({ errors: ['登录失败！密码错误！'] });
+          } else {
+            //保存用户登录信息
+            req.session.user = employees[0];
+            req.session._expires = Date.now() + 100000;
+            res.json({
+              errors: [],
+              result: { user: employees[0], msg: '登录成功' },
+            });
+          }
         }
-      } else res.status(403).json({  errors:[ '登录失败!用户名或密码错误！'] });
+      } else res.status(403).json({ errors: ['登录失败!用户不存在！'] });
     } catch (err) {
       console.log(err);
       res.json({ errors: err });
@@ -63,7 +68,11 @@ export class EmployeeService {
   //保存或更新一个员工信息
   async saveEmployee(req, res, next) {
     let employee = req.body.employee;
-    if (employee.password)
+    let findEmployee = await this.$employee.findOne({
+      employeeId: employee ? employee.employeeId : '',
+    });
+    //加密了，！！！！
+    if (employee.password != findEmployee.password)
       employee.password = $cipher.encrypt(employee.password);
     let errors = await validate(employee as Employee);
     console.log(errors);

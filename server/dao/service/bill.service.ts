@@ -75,9 +75,11 @@ export class BillService {
     try {
       for (let bill of bills) {
         let billExtend = Object.assign({}, bill);
+        let isinsert = false;
+        if (!bill.billId) isinsert = true;
         billExtend.billInfos = undefined;
         //把顾客员工存了
-        let billSaved = await getManager()
+        let billSaved = await queryRunner.manager
           .getRepository(BillToPeople)
           .save(billExtend);
         // .save(bill);
@@ -91,28 +93,29 @@ export class BillService {
           });
         }
         for (let billInfo of bill.billInfos) {
-          let r1 = await this.$billInfo.save(billInfo);
-          let r2 = await this.inventoryService.updateInventory({
-            isPurchase: false,
-            commodityId: billInfo.commodityId,
-            num: billInfo.commodityNum,
-          });
-          if (r2.errors.length > 0) {
-            throw new BadRequestException(r2.errors[0]);
+          let r1 = await queryRunner.manager
+            .getRepository(BillInfo)
+            .save(billInfo);
+          let r2 = {};
+          if (isinsert) {
+            let r2Temp = await this.inventoryService.updateInventory({
+              isPurchase: false,
+              commodityId: billInfo.commodityId,
+              num: billInfo.commodityNum,
+            },queryRunner);
+            if (r2Temp.errors.length > 0) {
+              throw new BadRequestException(r2Temp.errors[0]);
+            }
+            r2 = r2Temp.result;
           }
           resultTemp.push({
             saveBillInfoResult: r1,
-            saveInventoryResult: r2.result,
+            saveInventoryResult: r2,
           });
 
           // console.log(billInfo);
         }
 
-        const commodityInfos: {
-          commodityId: string;
-          commodityNum: number;
-          totalMoney: number;
-        }[] = bill.commodityInfos;
         // const commodityNumStrArr = billInfo.commodityNum;
         // let commodityNum = billInfo.commodityNum;
         // commodityNumStrArr.split(',').forEach((el) => {
@@ -134,10 +137,11 @@ export class BillService {
         // }
         result.push(resultTemp);
       }
-      queryRunner.commitTransaction();
+      await queryRunner.commitTransaction();
     } catch (err) {
       console.log(err);
       errors.push(err);
+      console.log('-------------------');
       await queryRunner.rollbackTransaction();
     } finally {
       await queryRunner.release();
@@ -203,7 +207,7 @@ GROUP BY
           'bp.billId=bp.billId',
         )
         .getOne();
-      queryRunner.commitTransaction();
+      await queryRunner.commitTransaction();
     } catch (err) {
       console.log(err);
       errors.push(err);
@@ -381,33 +385,39 @@ GROUP BY
     console.log(billId);
     const commodityId = req.query.commodityId;
     let deleteInfo = {};
+    let errors = [];
+    let result = [];
     if (billId) Object.assign(deleteInfo, { billId: billId });
-    if (commodityId) {
-      Object.assign(deleteInfo, { commodityId: commodityId });
-      console.log(deleteInfo);
-      if (Object.keys(deleteInfo).length == 0)
-        throw new ForbiddenException('未给定信息！无法删除！');
-      else
-        this.$billInfo.manager
-          .delete(BillInfo, deleteInfo)
-          .then((result) => {
-            res.json({ errors: [], result: result });
-          })
-          .catch((err) => {
-            console.log(err);
-            res.status(403).json({ errors: [err], result: [] });
+
+    if (commodityId) Object.assign(deleteInfo, { commodityId: commodityId });
+    console.log(deleteInfo);
+    if (Object.keys(deleteInfo).length == 0)
+      throw new ForbiddenException('未给定信息！无法删除！');
+    else {
+      const connection = getConnection();
+      const queryRunner = connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        let billExists = await queryRunner.manager.find(BillInfo, deleteInfo);
+        for (let billInfo of billExists) {
+          result.push(await queryRunner.manager.delete(BillInfo, deleteInfo));
+          await this.inventoryService.updateInventory({
+            isPurchase: true,
+            commodityId: billInfo.commodityId,
+            num: billInfo.commodityNum,
           });
-    } else {
-      getManager()
-        .getRepository(BillToPeople)
-        .delete({ billId: billId })
-        .then((result) => {
-          res.json({ errors: [], result: result });
-        })
-        .catch((err) => {
-          console.log(err);
-          res.status(403).json({ errors: [err], result: [] });
-        });
+        }
+        queryRunner.commitTransaction();
+      } catch (err) {
+        console.log(err);
+        errors.push(err);
+      } finally {
+        if (result.length == 0 && errors.length == 0)
+          errors = ['删除失败！该收银单已删除'];
+        await queryRunner.release();
+        res.json({ errors: errors, result: result });
+      }
     }
   }
 

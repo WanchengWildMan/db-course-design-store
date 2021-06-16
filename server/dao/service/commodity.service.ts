@@ -27,8 +27,7 @@ export class CommodityService {
     @InjectRepository(Unit)
     private readonly $unit: Repository<Unit>,
     private readonly $inventorySql: InventoryService,
-  ) {
-  }
+  ) {}
 
   pak(ok: boolean, item: string, opr: string) {
     return { code: ok, msg: item + opr + (ok ? '成功' : '失败') };
@@ -53,19 +52,21 @@ export class CommodityService {
         return await getManager()
           .transaction(async (entityManager: EntityManager) => {
             //没传Id默认添加，初始库存为0，缺货
-            if (!reqCom.commodityId) reqCom.Status = 0;
-            const commodity =
-              await entityManager.save(Commodity, reqCom);
+            if (!reqCom.commodityId) (reqCom.Status = 0), reqCom.inventoryInfo=undefined;
+            const commodity = await entityManager.save(Commodity, reqCom);
             //同时加入库存表
             console.log(commodity);
             let inventory = {};
             if (!commodity.inventoryInfo) {
-              inventory = Object.assign({}, {
-                commodityId: commodity.commodityId,
-                quantityLowerLimit: 0,
-                quantityUpperLimit: null,
-                inventoryNum: 0,
-              });
+              inventory = Object.assign(
+                {},
+                {
+                  commodityId: commodity.commodityId,
+                  quantityLowerLimit: 0,
+                  quantityUpperLimit: null,
+                  inventoryNum: 0,
+                },
+              );
               inventory = await entityManager.save(InventoryInfo, inventory);
               commodity.inventoryInfo = Object.assign({}, inventory);
             }
@@ -77,7 +78,6 @@ export class CommodityService {
           .catch((err) => {
             console.log(err);
             res.json({ errors: [err], result: [] });
-
           });
     } catch (e) {
       console.log(e);
@@ -156,7 +156,6 @@ export class CommodityService {
    *   模糊查询商品 TODO
    */
   async findCommodityByPage(req, res, next) {
-
     let pageInfo = $util.getQueryInfo(req, 'pageInfo', res);
     let findInfo = $util.getQueryInfo(req, 'findInfo', res);
     let key = findInfo ? findInfo.key : null;
@@ -213,13 +212,17 @@ export class CommodityService {
 
   async findCategoryByPage(req, res, next) {
     const findInfo = $util.getQueryInfo(req, 'findInfo', res);
-    this.$category.find(findInfo).then(result => {
-      res.json({ errors: [], result: result });
-
-    }).catch((err) => {
-      console.log(err);
-      res.json({ errors: err, result: [] });
-    });
+    const all = req.query.all;
+    this.$category
+      .find(findInfo)
+      .then((result) => {
+        if (!all) result = result.filter((e) => e.Status != -1);
+        res.json({ errors: [], result: result });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.json({ errors: err, result: [] });
+      });
   }
 
   /**

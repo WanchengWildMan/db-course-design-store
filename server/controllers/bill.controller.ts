@@ -1,6 +1,16 @@
-import { Controller, Delete, Get, Next, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Next,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AppGuard } from 'server/app.guard';
+import { Roles } from 'server/roles.decorator';
 import { BillService } from '../dao/service/bill.service';
 
 @ApiTags('收银台')
@@ -49,34 +59,10 @@ export class BillController {
   findBillGroupByCategory(@Req() req, @Res() res, @Next() next) {
     this.$sql.findBillGroupByCategory(req, res, next);
   }
-
-  // /**
-  //  * 获取指定员工的收银信息
-  //  */
-  // @Get('/findAllCommodityByEmployeeAndPage')
-  // findAllCommodityByEmployeeAndPage(@Req() req, @Res() res, @Next() next) {
-  //   this.$sql.findAllCommodityByEmployeeAndPage(req, res, next);
-  // }
-
-  // /***
-  //  * 获取指定收银单号的详细信息
-  //  */
-  // @Get('/findCommodityByBillId')
-  // findCommodityByBillId(@Req() req, @Res() res, @Next() next) {
-  //   this.$sql.findCommodityByBillId(req, res, next);
-  // }
-
-  // /**
-  //  * 获取收银单中商品信息的总数
-  //  */
-  // @Get('/findCountByInfo')
-  // findCountByInfo(@Req() req, @Res() res, @Next() next) {
-  //   this.$sql.findCountByInfo(req, res, next);
-  // }
-
   /**
    * 删除指定收银单据
    */
+  @Roles(3)
   @Delete('/deleteBillByBillId')
   deleteBillByBillId(@Req() req, @Res() res, @Next() next) {
     this.$sql.deleteBillByBillId(req, res, next);

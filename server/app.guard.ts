@@ -33,6 +33,8 @@ export class AppGuard implements CanActivate {
     const req = context.switchToHttp().getRequest();
     const res = context.switchToHttp().getResponse();
     const session = req.session;
+    this.logger.debug(session);
+    
     const user = session.user;
     const roleRequired = this.reflector.get(
       ROLES_METADATA,
@@ -43,7 +45,7 @@ export class AppGuard implements CanActivate {
     this.logger.log(req.url);
     this.logger.log(req.body);
     this.logger.log(req.query);
-    return true; //!!!
+    // return true; //!!!
 
     if (isNoAuth) return true;
     if (!user) throw new ForbiddenException('请先登录！');
@@ -57,10 +59,26 @@ export class AppGuard implements CanActivate {
       throw new ForbiddenException('用户为伪造！');
     else if (Date.now() > session.cookie._expires)
       throw new ForbiddenException('登录已过期！');
-    else if (roleRequired > findRole.roleLevel) {
+    else if (
+      roleRequired > findRole.roleLevel ||
+      !this.checkMaintainPeimission(findRole, req.method)
+    ) {
       throw new ForbiddenException('权限不足！');
     }
-    req.session.cookie.maxAge = 100000;
     return true;
+  }
+  checkMaintainPeimission(findRole, method) {
+    if (method.toLowerCase() == 'get') return true;
+    let oprMap = { addinto: 'insert', edit: 'update', remove: 'delete' };
+    let oprToMethod = { addinto: 'post', edit: 'post', remove: 'delete' };
+    let ok: boolean = false;
+    for (let key of Object.keys(findRole)) {
+      if (!Object.keys(oprToMethod).includes(key.toLowerCase())) continue;
+      // console.log(key, findRole[key]);
+      // console.log(method);
+      if (findRole[key] > 0 && oprToMethod[key.toLowerCase()] == method.toLowerCase())
+        ok = true;
+    }
+    return ok;
   }
 }

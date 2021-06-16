@@ -68,12 +68,19 @@ export class PurchaseService {
     let errors = [];
     try {
       for (let purchaseInfo of purchaseInfos) {
-        const r = await queryRunner.manager.save(PurchaseInfo, purchaseInfo);
-        await this.$inventorySql.updateInventory({
-          isPurchase: true,
-          commodityId: purchaseInfo.commodityId,
-          num: purchaseInfo.commodityNum,
-        });
+        //这里又是浅复制！！！！！！！！！！！
+        const r = await queryRunner.manager.save(PurchaseInfo, Object.assign({},purchaseInfo));
+        if (!purchaseInfo.purchaseId) {
+          const r2 = await this.$inventorySql.updateInventory(
+            {
+              isPurchase: true,
+              commodityId: purchaseInfo.commodityId,
+              num: purchaseInfo.commodityNum,
+            },
+            queryRunner,
+          );
+          if (r2.errors.length > 0) throw new Error(r2.errors[0]);
+        }
         result.push(r);
       }
     } catch (err) {
@@ -140,11 +147,14 @@ export class PurchaseService {
       let r = await queryRunner.manager.delete(PurchaseInfo, {
         purchaseId: purchaseId,
       });
-      await this.$inventorySql.updateInventory({
-        isPurchase: false,
-        commodityId: purchase.commodityId,
-        num: purchase.commodityNum,
-      });
+      await this.$inventorySql.updateInventory(
+        {
+          isPurchase: false,
+          commodityId: purchase.commodityId,
+          num: purchase.commodityNum,
+        },
+        queryRunner,
+      );
       queryRunner.commitTransaction();
       result.push(r);
     } catch (err) {

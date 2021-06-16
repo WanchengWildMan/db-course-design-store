@@ -80,13 +80,13 @@ export class UserController {
   /**
    * 获取指定页数的所属角色信息
    */
-  @Roles(3)
+
   @Get('/role/findRoleByPage')
   findRoleByPage(@Req() req, @Res() res, @Next() next) {
     this.$roleSql.findRoleByPage(req, res, next);
   }
   @Roles(3)
-  @Delete('role/deleteRoleById')
+  @Delete('/role/deleteRoleById')
   deleteRoleById(@Req() req, @Res() res, @Next() next) {
     this.$roleSql.deleteRoleById(req, res, next);
   }

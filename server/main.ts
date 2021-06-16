@@ -11,14 +11,29 @@ async function bootstrap() {
   app.use(
     Session({
       secret: 'userStore',
-      cookie: { maxAge: 6000000000 },
+      cookie: { maxAge: 60000000 },
       resave: false,
       saveUninitialized: true,
     }),
   );
 
+  app.enableCors({
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
+  // app.use((req, res, next) => {
+  //   console.log(req.origin, 'origin');
+  //   // res.header('Access-Control-Allow-Origin', req.origin);
+  //   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  //   res.header(
+  //     'Access-Control-Allow-Headers',
+  //     'Content-Type, Accept,Authorization,DNT,Content-Type,Referer,User-Agent',
+  //   );
+  //   res.header('Access-Control-Allow-Credentials', 'true');
 
-  app.enableCors();
+  //   next();
+  // });
   const options = new DocumentBuilder()
     .setTitle('商店管理')
     .setDescription('使用nest书写的常用性接口') // 文档介绍
