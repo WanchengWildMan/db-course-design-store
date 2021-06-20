@@ -34,7 +34,7 @@ export class BillInfo {
   })
   @JoinColumn({ name: 'commodityId' })
   commodity: Commodity;
-  @Column({ comment: '商品数量', default: 1 })
+  @Column('double',{ comment: '商品数量', default: 1 })
   commodityNum: number;
   @Column('double', { comment: '总金额，商品单价会变化' })
   totalMoney;

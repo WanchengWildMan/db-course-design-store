@@ -1,17 +1,10 @@
-import { Injectable, Req } from '@nestjs/common';
-import * as mysql from 'mysql';
-import * as $util from '../../../util/util';
-import * as $cipher from '../../../util/cipher';
-
-import { $conf } from '../../../conf/db';
-import { userSqlMap as $sql } from '../../map/userMap';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Employee } from '../../../entities/employee.entity';
-import { getManager, Repository } from 'typeorm';
-import { parallel } from 'async';
-import { page } from '../../../util/util';
-import { exception } from 'console';
 import { validate } from 'class-validator';
+import { getManager, Repository } from 'typeorm';
+import { Employee } from '../../../entities/employee.entity';
+import * as $cipher from '../../../util/cipher';
+import * as $util from '../../../util/util';
 
 let pak = (ok: boolean, item: string, opr: string) => {
   return { code: ok, msg: item + opr + (ok ? '成功' : '失败') };
@@ -87,29 +80,6 @@ export class EmployeeService {
         res.json({ errors: err, result: [] });
       });
   }
-
-  // //更新员工使用状态
-  // updateEmployeeStatusById(req, res, next) {
-  //
-  //   this.pool.getConnection((err, connection) => {
-  //     //获取参数
-  //     const param = req.body;
-  //     //建立连接，保存值
-  //     connection.query(
-  //       $sql.employee.updateEmployeeStatusById,
-  //       [param.Status === 1 ? -1 : 1, param.employeeId],
-  //       (err, result) => {
-  //         if (result) {
-  //           result = {
-  //             code: 200,
-  //             msg: '更新员工使用状态成功',
-  //           };
-  //         }
-  //         $util.closeConnection(res, result, connection);
-  //       },
-  //     );
-  //   });
-  // }
 
   //获取指定页数的员工信息
   findEmployeeByPage(req, res, next) {

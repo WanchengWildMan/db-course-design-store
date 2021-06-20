@@ -47,7 +47,7 @@ export class Employee {
   contactAddress: string;
   @Column('char', { length: 18, comment: '身份证号' })
   IdCard: string;
-  @CreateDateColumn()
+@CreateDateColumn()
   createDate: string;
   @CreateDateColumn()
   updateDate: string;

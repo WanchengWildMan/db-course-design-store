@@ -1,6 +1,3 @@
-/**
- * Created by Administrator on 2017/5/7.
- */
 import * as crypto from 'crypto';
 const key = '751f621ea5c8f930'; //加密的秘钥
 const iv = '2624750004598718'; //加密的向量

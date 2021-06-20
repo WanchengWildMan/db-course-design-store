@@ -1,3 +1,4 @@
+import { IsDate, IsNumber, Length } from 'class-validator';
 import {
   Column,
   CreateDateColumn,
@@ -6,28 +7,16 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import DateTimeFormat = Intl.DateTimeFormat;
-import { inflate } from 'zlib';
+import { BillInfo } from './billInfo.entity';
 import { Category } from './category.entity';
-import { Unit } from './unit.entity';
+import { InventoryInfo } from './inventoryInfo.entity';
 import { Provide } from './provide.entity';
 import { PurchaseInfo } from './purchaseInfo.entity';
-import { type } from 'os';
-import { BillInfo } from './billInfo.entity';
-import { InventoryInfo } from './inventoryInfo.entity';
-import {
-  IS_UUID,
-  IsDate,
-  IsEmail,
-  IsNumber,
-  Length,
-  min,
-} from 'class-validator';
-import { inventoryMap } from '../dao/map/inventoryMap';
+import { Unit } from './unit.entity';
+import DateTimeFormat = Intl.DateTimeFormat;
 
 @Entity()
 export class Commodity {
@@ -86,9 +75,9 @@ export class Commodity {
   @CreateDateColumn({ comment: '创建日期' })
   @IsDate()
   createDate: string;
-  @UpdateDateColumn({comment:"修改日期"})
+  @UpdateDateColumn({ comment: '修改日期' })
   @IsDate()
-  updateDate:string;
+  updateDate: string;
   @Column('varchar', { comment: '供应商编号', nullable: true })
   provideId: string;
   @ManyToOne((type) => Provide, (provide) => provide.commoditys, {

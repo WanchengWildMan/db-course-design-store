@@ -1,13 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import * as mysql from 'mysql';
-import * as $util from '../../util/util';
-import { $conf } from '../../conf/db';
-import { userSqlMap as $sql } from '../map/userMap';
 import { InjectRepository } from '@nestjs/typeorm';
-
+import { validate } from 'class-validator';
 import { Repository } from 'typeorm';
 import { Provide } from '../../entities/provide.entity';
-import { validate } from 'class-validator';
+import * as $util from '../../util/util';
+
 const PORVIDE_EXAMPLE = {
   provideId: '',
   name: '',
@@ -95,6 +92,7 @@ export class ProvideSerivce {
   deleteProvideById(req, res, next) {
     // TODO
     const findInfo = $util.getQueryInfo(req, 'findInfo', res);
+    console.log(findInfo, 'findInfo');
     this.$provide
       .save({ provideId: findInfo.provideId, Status: -1 })
       .then((result) => {
@@ -105,97 +103,4 @@ export class ProvideSerivce {
         res.json({ errors: err, result: [] });
       });
   }
-
-  //获取供应商信息，用于下拉选择选项
-  // getProvideBySelect(req, res, next) {
-  //
-  //   this.pool.getConnection((err, connection) => {
-  //     connection.query($sql.provide.getProvideBySelect, (err, result) => {
-  //       if (err) console.error(err);
-  //       let r = {};
-  //       if (result) {
-  //         r = {
-  //           code: true,
-  //           result: result,
-  //         };
-  //       }
-  //       $util.closeConnection(res, r, connection);
-  //     });
-  //   });
-  // }
-  //
-  // //更新指定供应商信息
-  // updateProvideById(req, res, next) {
-  //   this.pool.getConnection((err, connection) => {
-  //     const param = req.body;
-  //     connection.query(
-  //       $sql.provide.updateProvideById,
-  //       [
-  //         param.name,
-  //         param.contactPerson,
-  //         param.contactPhone,
-  //         param.contactAddress,
-  //         param.contactEmail,
-  //         param.categoryId,
-  //         param.Status,
-  //         param.remark,
-  //         param.provideId,
-  //       ],
-  //       (err, result) => {
-  //         if (err) console.error(err);
-  //         console.log(err);
-  //         if (result) {
-  //           result = {
-  //             code: true,
-  //             msg: '更新供应商信息成功',
-  //           };
-  //         }
-  //         $util.closeConnection(res, result, connection);
-  //       },
-  //     );
-  //   });
-  // }
-  //
-  // //更新指定供应商信息的状态
-  // updateProvideStatusById(req, res, next) {
-  //   this.pool.getConnection((err, connection) => {
-  //     const param = req.body;
-  //     connection.query(
-  //       $sql.provide.updateProvideStatusById,
-  //       [param.Status === 1 ? -1 : 1, param.provideId],
-  //       (err, result) => {
-  //         if (err) console.error(err);
-  //         if (result) {
-  //           result = {
-  //             code: true,
-  //             msg: '更新供应商状态成功',
-  //           };
-  //         }
-  //         $util.closeConnection(res, result, connection);
-  //       },
-  //     );
-  //   });
-  // }
-  //
-  // //删除指定供应商信息
-  // deleteProvideById(req, res, next) {
-  //   this.pool.getConnection((err, connection) => {
-  //     if (err) throw err;
-  //     const param = req.params;
-  //     connection.query(
-  //       $sql.provide.deleteProvideById,
-  //       param.provideId,
-  //       (err, result) => {
-  //         if (err) console.error(err);
-  //         if (result) {
-  //           result = {
-  //             code: true,
-  //             msg: '删除供应商信息成功',
-  //           };
-  //         }
-  //         $util.closeConnection(res, result, connection);
-  //       },
-  //     );
-  //   });
-  // }
 }

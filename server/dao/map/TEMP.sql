@@ -1,1 +1,0 @@
-    SELECT count(c.commodityId) AS count FROM commodity c, category g, unit u, store s WHERE c.categoryId = g.categoryId AND c.unitId = u.unitId AND c.`Status` != - 2 and c.commodityId = s.commodityId

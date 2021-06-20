@@ -1,12 +1,6 @@
-import {
-  Column,
-  Entity,
-  OneToMany,
-  PrimaryColumn,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { IsEmail, IsPhoneNumber } from 'class-validator';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Commodity } from './commodity.entity';
-import { IsEmail, IsPhoneNumber, Length } from 'class-validator';
 
 @Entity()
 export class Provide {

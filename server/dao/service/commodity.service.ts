@@ -1,20 +1,12 @@
-import {
-  createConnection,
-  EntityManager,
-  getManager,
-  Repository,
-} from 'typeorm';
-import { HttpException, Injectable } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Commodity } from '../../entities/commodity.entity';
-import * as $util from '../../util/util';
-import { Category } from '../../entities/category.entity';
-import { Unit } from '../../entities/unit.entity';
-
-import { commoditySqlMap as $sql } from '../map/commodityMap';
-import { InventoryInfo } from '../../entities/inventoryInfo.entity';
 import { validate } from 'class-validator';
+import { EntityManager, getManager, Repository } from 'typeorm';
+import { Category } from '../../entities/category.entity';
+import { Commodity } from '../../entities/commodity.entity';
+import { InventoryInfo } from '../../entities/inventoryInfo.entity';
+import { Unit } from '../../entities/unit.entity';
+import * as $util from '../../util/util';
 import { InventoryService } from './inventory.service';
 
 @Injectable()
@@ -52,7 +44,8 @@ export class CommodityService {
         return await getManager()
           .transaction(async (entityManager: EntityManager) => {
             //没传Id默认添加，初始库存为0，缺货
-            if (!reqCom.commodityId) (reqCom.Status = 0), reqCom.inventoryInfo=undefined;
+            if (!reqCom.commodityId)
+              (reqCom.Status = 0), (reqCom.inventoryInfo = undefined);
             const commodity = await entityManager.save(Commodity, reqCom);
             //同时加入库存表
             console.log(commodity);

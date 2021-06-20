@@ -1,6 +1,3 @@
-/**
- * Created by Administrator on 2017/5/10.
- */
 import {
   BadRequestException,
   ForbiddenException,
@@ -98,11 +95,14 @@ export class BillService {
             .save(billInfo);
           let r2 = {};
           if (isinsert) {
-            let r2Temp = await this.inventoryService.updateInventory({
-              isPurchase: false,
-              commodityId: billInfo.commodityId,
-              num: billInfo.commodityNum,
-            },queryRunner);
+            let r2Temp = await this.inventoryService.updateInventory(
+              {
+                isPurchase: false,
+                commodityId: billInfo.commodityId,
+                num: billInfo.commodityNum,
+              },
+              queryRunner,
+            );
             if (r2Temp.errors.length > 0) {
               throw new BadRequestException(r2Temp.errors[0]);
             }

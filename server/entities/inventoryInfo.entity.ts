@@ -1,14 +1,12 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   OneToOne,
   PrimaryColumn,
-  PrimaryGeneratedColumn, UpdateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Commodity } from './commodity.entity';
-import { commoditySqlMap } from '../dao/map/commodityMap';
 
 @Entity()
 //库存

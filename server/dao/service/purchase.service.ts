@@ -1,17 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import * as mysql from 'mysql';
-import * as crypto from 'crypto';
-import * as $util from '../../util/util';
-import { $conf } from '../../conf/db';
-import { purchaseMapSql as $sql } from '../map/purchaseMap';
-import async, { find } from 'async';
-import Connection from 'mysql/lib/Connection';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as mysql from 'mysql';
+import { getConnection, Repository } from 'typeorm';
 import { PurchaseInfo } from '../../entities/purchaseInfo.entity';
-import { getConnection, getManager, Repository } from 'typeorm';
-import { PageInfo, ROLE_LEVEL_ADMIN } from '../../shop.decl';
-import { BillInfo } from '../../entities/billInfo.entity';
-import { InventoryInfo } from 'server/entities/inventoryInfo.entity';
+import * as $util from '../../util/util';
 import { InventoryService } from './inventory.service';
 
 const pak = (ok: boolean, item: string, opr: string) => {
@@ -31,9 +23,7 @@ export class PurchaseService {
     @InjectRepository(PurchaseInfo)
     private readonly $purchase: Repository<PurchaseInfo>,
     private readonly $inventorySql: InventoryService,
-  ) {
-    this.pool = mysql.createPool($util.extend({}, $conf.mysql));
-  }
+  ) {}
 
   //添加进货单
   async saveOnePurchase(req, res, next) {
@@ -69,7 +59,10 @@ export class PurchaseService {
     try {
       for (let purchaseInfo of purchaseInfos) {
         //这里又是浅复制！！！！！！！！！！！
-        const r = await queryRunner.manager.save(PurchaseInfo, Object.assign({},purchaseInfo));
+        const r = await queryRunner.manager.save(
+          PurchaseInfo,
+          Object.assign({}, purchaseInfo),
+        );
         if (!purchaseInfo.purchaseId) {
           const r2 = await this.$inventorySql.updateInventory(
             {

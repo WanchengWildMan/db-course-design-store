@@ -1,4 +1,3 @@
-import { MenuService } from 'server/dao/impl/menu.service';
 import {
   Controller,
   Post,
@@ -14,6 +13,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { PurchaseService } from 'server/dao/service/purchase.service';
 import { AppGuard } from 'server/app.guard';
+import { Roles } from 'server/roles.decorator';
 
 @ApiTags('进货')
 @Controller('/api/purchase')
@@ -39,17 +39,10 @@ export class PurchaseController {
     this.$sql.findPurchaseByPage(req, res, next);
   }
 
-  // /**
-  //  * 审核进货单
-  //  */
-  // @Put('/reviewPurchase')
-  // reviewPurchase(@Req() req, @Res() res, @Next() next) {
-  //   this.$sql.reviewPurchase(req, res, next);
-  // }
-
   /**
    * 删除指定进货单
    */
+  @Roles(3)
   @Delete('/deletePurchaseById/')
   deletePurchaseById(@Req() req, @Res() res, @Next() next) {
     this.$sql.deletePurchaseById(req, res, next);

@@ -1,14 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import * as mysql from 'mysql';
-import * as $util from '../../../util/util';
-import { $conf } from '../../../conf/db';
-import * as $cipher from '../../../util/cipher.js';
-
-import { userSqlMap as $sql } from '../../map/userMap';
-import { ProvideSerivce } from '../provide.service';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as mysql from 'mysql';
 import { Role } from 'server/entities/role.entity';
 import { Repository } from 'typeorm';
+import * as $util from '../../../util/util';
+
 
 let pak = function (code, msg) {
   return {

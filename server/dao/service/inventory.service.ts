@@ -1,17 +1,11 @@
 //实现与mysql数据库交互
-import { ForbiddenException, HttpException, Injectable } from '@nestjs/common';
-import * as mysql from 'mysql';
-import * as $util from '../../util/util';
-import { $conf } from '../../conf/db';
-import { inventoryMap as $sql } from '../map/inventoryMap';
-import async from 'async';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { InventoryInfo } from '../../entities/inventoryInfo.entity';
-import { getConnection, getManager, Repository, Timestamp } from 'typeorm';
-import { BillInfo } from '../../entities/billInfo.entity';
+import { getConnection, Repository } from 'typeorm';
 import { Commodity } from '../../entities/commodity.entity';
+import { InventoryInfo } from '../../entities/inventoryInfo.entity';
 import { PageInfo } from '../../shop.decl';
-import { Category } from '../../entities/category.entity';
+import * as $util from '../../util/util';
 
 //使用连接池，提升性能
 let pak = (ok: boolean, item: string, opr: string) => {

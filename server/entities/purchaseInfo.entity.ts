@@ -1,14 +1,15 @@
+import { IsDate } from 'class-validator';
 import {
-  Column, CreateDateColumn,
+  Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryColumn,
-  PrimaryGeneratedColumn, UpdateDateColumn,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Commodity } from './commodity.entity';
 import { Employee } from './employee.entity';
-import { IsDate } from 'class-validator';
 
 @Entity()
 export class PurchaseInfo {
@@ -25,7 +26,7 @@ export class PurchaseInfo {
   commodity: Commodity;
   @Column('double', { default: 1 })
   commodityNum: number;
-  @Column('varchar', { comment: '员工id',nullable:true })
+  @Column('varchar', { comment: '员工id', nullable: true })
   employeeId: string;
   @ManyToOne((type) => Employee, (employee) => employee.purchases, {
     eager: true,
@@ -39,9 +40,9 @@ export class PurchaseInfo {
   @CreateDateColumn({ comment: '创建日期' })
   @IsDate()
   createDate: string;
-  @UpdateDateColumn({comment:"修改日期"})
+  @UpdateDateColumn({ comment: '修改日期' })
   @IsDate()
-  updateDate:string;
+  updateDate: string;
   @Column('text', { nullable: true })
   remark: string;
 }

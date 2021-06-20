@@ -1,4 +1,0 @@
-@startuml
-component 收银台
-component 商品
-@enduml
